@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GẤU POS • V65 PRO (FIX LỖI TRẮNG MÀN)</title>
+    <title>GẤU POS • V65.1 PRO (=)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -90,6 +90,7 @@
 
         @media (max-width:900px) {
             #main-app { flex-direction:column; }
+            /* Cập nhật thanh Sidebar với z-index 9000, chúng ta sẽ để giỏ hàng 9500 để đè lên nó */
             .sidebar { width:100%; height:auto; min-height:70px; flex-direction:row; justify-content:space-around; padding:0 5px; padding-bottom:env(safe-area-inset-bottom); border-right:none; border-top:1px solid var(--border); position:fixed; bottom:0; left:0; right:0; z-index:9000; box-shadow:0 -5px 20px rgba(0,0,0,0.5); background:rgba(6,8,15,0.98); backdrop-filter:blur(20px); }
             .sidebar-logo { display:none; }
             .nav-btn { width:auto; flex:1; padding:12px 0; justify-content:center; border-radius:0; font-size:10px; gap:4px; }
@@ -109,7 +110,8 @@
             .stats-grid { grid-template-columns:1fr; gap:15px; }
             .bill-drawer { width:100% !important; right:-100%; }
             .drawer-body { padding:15px; }
-            .drawer-footer { padding:15px; padding-bottom:calc(15px + env(safe-area-inset-bottom)); }
+            /* Cập nhật đệm dưới bình thường vì nút giờ không bị vướng thanh menu nữa */
+            .drawer-footer { padding:15px; padding-bottom:calc(20px + env(safe-area-inset-bottom)); }
             #drawer-total { font-size:1.6rem !important; }
             #toast-container { bottom:calc(85px + env(safe-area-inset-bottom)); right:10px; left:10px; }
         }
@@ -128,13 +130,15 @@
         .busy .tbl-status { color:var(--gold3); background:rgba(245,158,11,0.2); border-color:rgba(245,158,11,0.3); }
         .tbl-time { font-family:'Space Grotesk',monospace; font-size:1.1rem; font-weight:800; margin-top:10px; color:var(--green3); }
 
-        .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:8000; display:none; }
-        .bill-drawer { position:fixed; top:0; right:-480px; width:480px; max-width:100%; height:100dvh; background:var(--bg2); border-left:1px solid var(--border2); z-index:8001; transition:0.4s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
+        /* NÂNG Z-INDEX LÊN 9500: Đảm bảo trượt lên đè bẹp cả thanh menu ở dưới */
+        .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:9500; display:none; }
+        .bill-drawer { position:fixed; top:0; right:-480px; width:480px; max-width:100%; height:100dvh; background:var(--bg2); border-left:1px solid var(--border2); z-index:9501; transition:0.4s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
         .bill-drawer.open { right:0; }
         .drawer-overlay.open { display:block; }
         .drawer-header { padding:20px; background:rgba(0,0,0,0.6); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
         .drawer-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; }
-        .drawer-footer { padding:20px; background:rgba(0,0,0,0.8); border-top:1px solid var(--border); }
+        .drawer-footer { padding:20px; padding-bottom:calc(20px + env(safe-area-inset-bottom)); background:rgba(0,0,0,0.8); border-top:1px solid var(--border); }
+        
         .quick-item { background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:10px; border-radius:var(--r1); display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
         .quick-item:hover { border-color:var(--p3); background:rgba(124,58,237,0.1); }
         .qty-ctrl { display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.5); padding:5px; border-radius:8px; border:1px solid var(--border2); }
@@ -267,9 +271,9 @@
         <div class="sidebar-logo">🐻</div>
         <button class="nav-btn active" data-view="pos"><i class="fas fa-cash-register"></i><span>Bán hàng</span></button>
         <button class="nav-btn" data-view="menu-admin"><i class="fas fa-utensils"></i><span>Thực đơn</span></button>
-        <button class="nav-btn" data-view="inventory"><i class="fas fa-boxes"></i><span>Kho hàng</span></button>
+        <button class="nav-btn" data-view="inventory" id="tab-inventory"><i class="fas fa-boxes"></i><span>Kho hàng</span></button>
         <button class="nav-btn" data-view="report" id="tab-report" style="display:none"><i class="fas fa-chart-bar"></i><span>Báo cáo</span></button>
-        <button class="nav-btn" data-view="attendance"><i class="fas fa-user-clock"></i><span>Chấm công</span></button>
+        <button class="nav-btn" data-view="attendance" id="tab-attendance"><i class="fas fa-user-clock"></i><span>Chấm công</span></button>
         <button class="nav-btn" data-view="settings" id="tab-settings" style="display:none;"><i class="fas fa-cogs"></i><span>Cài đặt</span></button>
         <button class="nav-btn" style="color:var(--orange);" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i><span>Thoát</span></button>
     </nav>
@@ -292,7 +296,6 @@
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
                 <div style="display:flex;align-items:center;gap:15px;">
                     <div id="dynamic-zone-tabs" class="zone-tabs" style="margin-bottom:0;"></div>
-                    <button class="btn btn-outline" style="padding:8px 15px;" onclick="renameCurrentZone()"><i class="fas fa-edit"></i> Sửa Tên Zone</button>
                 </div>
                 <button class="btn btn-outline" onclick="addTable()"><i class="fas fa-plus"></i> Thêm Bàn/Phòng</button>
             </div>
@@ -415,7 +418,15 @@
                         <label class="field-label" style="color:var(--gold)">Quản lý Đa Chi Nhánh (Chỉ Sếp Tổng)</label>
                         <button class="btn btn-outline" style="width:100%" onclick="addNewBranch()"><i class="fas fa-plus"></i> Tạo Chi nhánh mới</button>
                         <button class="btn btn-p" style="width:100%; margin-top:10px;" onclick="moPopupChiaSeMenu()"><i class="fas fa-share-alt"></i> Chia sẻ Thực đơn sang Nhánh khác</button>
-                        <select id="cfg-branch-select" class="select-input" style="margin-top:10px;margin-bottom:0;" onchange="changeBranch(this.value)"></select>
+                        <select id="cfg-branch-select" class="select-input" style="margin-top:10px;margin-bottom:15px;" onchange="changeBranch(this.value)"></select>
+
+                        <label class="field-label" style="color:var(--p3); border-top:1px dashed var(--border); padding-top:15px;">Bật/Tắt Tính năng Menu</label>
+                        <label style="display:flex;align-items:center;gap:10px;margin-bottom:10px;color:white;cursor:pointer;">
+                            <input type="checkbox" id="cfg-show-inventory" style="width:18px;height:18px;cursor:pointer;"> Dùng tính năng Kho Hàng
+                        </label>
+                        <label style="display:flex;align-items:center;gap:10px;margin-bottom:5px;color:white;cursor:pointer;">
+                            <input type="checkbox" id="cfg-show-attendance" style="width:18px;height:18px;cursor:pointer;"> Dùng tính năng Chấm Công GPS
+                        </label>
                     </div>
 
                     <label class="field-label">Tên đăng nhập</label>
@@ -511,6 +522,7 @@ let branchConfig = {
     models: ['bida','cafe'], rateNormal: 50000, ratePeak: 60000, peakStart: '18:00', peakEnd: '23:00',
     lat: 22.3361, lng: 103.8438, radius: 50, shiftStart: '07:00', lateFine: 1000,
     autoPrint: false, bankId: 'MB', bankAcc: '', bankName: '', cloudLimit: 5000, phone: '', webhookUrl: '',
+    showInventory: true, showAttendance: true,
     ...savedConfig
 };
 if (!branchConfig.models || !Array.isArray(branchConfig.models) || branchConfig.models.length === 0) {
@@ -610,6 +622,11 @@ function goToReport() {
     if(repBtn) repBtn.click();
 }
 
+function applyFeatureToggles() {
+    document.getElementById('tab-inventory').style.display = branchConfig.showInventory ? 'flex' : 'none';
+    document.getElementById('tab-attendance').style.display = branchConfig.showAttendance ? 'flex' : 'none';
+}
+
 window.onload = () => {
     bindCurrencyInputs();
     bindNavEvents(); 
@@ -677,20 +694,30 @@ async function handleLogin() {
 }
 
 function initApp() {
+    applyFeatureToggles();
     loadCartsFromSession();
     renderZoneTabs(); loadTables(); loadMenu(); loadInventory();
     if (currentUser.role !== 'staff') filterReport('day');
     checkCloudLimit();
     if(tickerInterval) clearInterval(tickerInterval); 
-    tickerInterval = setInterval(ticker, 60000);
+    tickerInterval = setInterval(ticker, 60000); 
 }
+
+// BỘ CẬP NHẬT GIAO DIỆN MỖI 10 GIÂY ĐỂ THẤY TIỀN NHẢY LÊN LIÊN TỤC
+setInterval(() => {
+    if (document.getElementById('drawer').classList.contains('open') && activeTableStartTime && activeTableType && MODEL_NAMES[activeTableType]?.hasTimer) {
+        const diff = Math.floor((new Date() - new Date(activeTableStartTime)) / 60000);
+        const durEl = document.getElementById('bida-duration');
+        if(durEl) durEl.innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
+        renderCart();
+    }
+}, 10000);
 
 function ticker() {
     const nowStr = new Date().toLocaleDateString('vi-VN');
     if (nowStr !== lastLoadedDay) {
         lastLoadedDay = nowStr;
         if (currentUser.role !== 'staff') filterReport(reportPeriod);
-        showToast("Đã sang ngày mới, làm mới dữ liệu!", "info");
     }
     updateTableTimers();
     checkCloudLimit();
@@ -753,13 +780,6 @@ async function updateTableTimers() {
             const diff = Math.floor((new Date() - new Date(s.start_time)) / 60000);
             const el = document.getElementById(`timer-tbl-${s.table_id}`);
             if (el) el.innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
-            
-            if (activeTableId === s.table_id && document.getElementById('drawer').classList.contains('open')) {
-                activeTableStartTime = s.start_time;
-                const durEl = document.getElementById('bida-duration');
-                if(durEl) durEl.innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
-                renderCart(); 
-            }
         });
     } catch(e) {}
 }
@@ -820,10 +840,6 @@ async function transferCurrentTable() {
     } catch(e) { showToast("Lỗi chuyển bàn!", "error"); }
 }
 
-async function renameCurrentZone() {
-    showToast("Tính năng sửa tên Zone đang update!", "info");
-}
-
 async function openTable(id, type, status, name) {
     activeTableId = id; activeTableName = name; activeTableType = type;
     document.getElementById('drawer-title').innerText = name;
@@ -833,7 +849,6 @@ async function openTable(id, type, status, name) {
 
     if (status === 'trống') {
         if (!MODEL_NAMES[type].hasTimer) {
-            // Đã fix lỗi nhảy sang Đang Dùng ngay lập tức cho bàn Cafe
             document.getElementById('drawer').classList.add('open');
             document.getElementById('drawer-overlay').classList.add('open');
             document.getElementById('bida-info').style.display = 'none';
@@ -842,7 +857,6 @@ async function openTable(id, type, status, name) {
             activeTableStartTime = null;
             renderQuickMenu(); renderCart(); return;
         } else {
-            // Bàn có tính giờ (Bida/Karaoke) thì hiện nút Bắt đầu
             document.getElementById('drawer').classList.add('open');
             document.getElementById('drawer-overlay').classList.add('open');
             document.getElementById('bida-info').style.display = 'none';
@@ -882,15 +896,23 @@ function closeDrawer() {
     document.getElementById('drawer-overlay').classList.remove('open');
     activeTableId = null;
     activeTableStartTime = null;
-    document.getElementById('search-menu-input').value = ''; // Reset khung tìm kiếm
+    document.getElementById('search-menu-input').value = ''; 
 }
 
 async function startTable(id, type) {
-    await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', id);
-    if (MODEL_NAMES[type].hasTimer) await sbClient.from('billiards_sessions').insert([{ table_id: id, start_time: new Date().toISOString() }]);
-    if (!localCarts[id]) localCarts[id] = [];
-    saveCartsToSession();
-    showToast("Đã mở thành công!", "success"); closeDrawer(); loadTables();
+    try {
+        await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', id);
+        if (MODEL_NAMES[type].hasTimer) {
+            const { error } = await sbClient.from('billiards_sessions').insert([{ table_id: id, start_time: new Date().toISOString() }]);
+            if (error) { console.error("Lỗi insert session: ", error); showToast("Có lỗi khi tạo bộ đếm!", "error"); }
+        }
+        if (!localCarts[id]) localCarts[id] = [];
+        saveCartsToSession();
+        showToast("Đã mở thành công!", "success"); 
+        closeDrawer(); loadTables();
+    } catch (e) {
+        showToast("Lỗi hệ thống: " + e.message, "error");
+    }
 }
 
 function searchMenu() {
@@ -925,7 +947,6 @@ async function addToCart(id, name, price) {
     saveCartsToSession();
     renderCart();
 
-    // Auto chuyển bàn thành đang dùng nếu vừa gọi món đầu tiên
     try {
         const { data } = await sbClient.from('zones_tables').select('status').eq('id', activeTableId).single();
         if (data && data.status === 'trống') {
@@ -976,20 +997,35 @@ function renderCart() {
     document.getElementById('drawer-total').innerHTML = finalTotal.toLocaleString() + 'đ' + suffix;
 }
 
+// CÔNG THỨC TÍNH TIỀN NGAY LẬP TỨC CHO KHÁCH (LÀM TRÒN LÊN TỐI THIỂU 1 PHÚT)
 function calcTimeFee(startTimeStr, endTimeStr) {
+    if (!startTimeStr || !endTimeStr) return 0;
     let start = new Date(startTimeStr); let end = new Date(endTimeStr);
-    let [psH, psM] = branchConfig.peakStart.split(':').map(Number);
-    let [peH, peM] = branchConfig.peakEnd.split(':').map(Number);
+    
+    let totalMins = Math.ceil((end - start) / 60000);
+    if (totalMins < 1) totalMins = 1;
+
+    let ps = branchConfig.peakStart || '18:00';
+    let pe = branchConfig.peakEnd || '23:00';
+    let [psH, psM] = ps.split(':').map(Number);
+    let [peH, peM] = pe.split(':').map(Number);
+    
     let peakS = new Date(start); peakS.setHours(psH, psM, 0);
     let peakE = new Date(start); peakE.setHours(peH, peM, 0);
     if (peakE < peakS) peakE.setDate(peakE.getDate() + 1);
-    let totalMins = Math.floor((end - start) / 60000); let peakMins = 0;
+    
+    let peakMins = 0;
     if (start < peakE && end > peakS) {
         let os = start > peakS ? start : peakS;
         let oe = end < peakE ? end : peakE;
-        peakMins = Math.max(0, Math.floor((oe - os) / 60000));
+        peakMins = Math.max(0, Math.ceil((oe - os) / 60000));
     }
-    return Math.round(((totalMins - peakMins) * (branchConfig.rateNormal / 60)) + (peakMins * (branchConfig.ratePeak / 60)));
+    
+    let rateN = Number(branchConfig.rateNormal) || 0;
+    let rateP = Number(branchConfig.ratePeak) || 0;
+    
+    let fee = Math.round(((totalMins - peakMins) * (rateN / 60)) + (peakMins * (rateP / 60)));
+    return fee > 0 ? fee : 0;
 }
 
 async function openPaymentModal(tableId, type) {
@@ -1121,12 +1157,17 @@ async function processCheckout() {
         }
 
         if (totalAmount > 0 || cart.length > 0) {
-            // FIX: Đã thêm branch_id vào lúc lưu hóa đơn để báo cáo không bị tràn data
             const { data: ord, error: ordErr } = await sbClient.from('orders').insert([{
-                table_id: tableId, user_id: currentUser.id, branch_id: currentBranch,
+                table_id: tableId, user_id: currentUser?.id || null, branch_id: currentBranch,
                 total_amount: totalAmount, discount_pct: discountPct || 0, discount_amt: discountAmt || 0
             }]).select();
             
+            if (ordErr) {
+                console.error("LỖI LƯU DATA:", ordErr);
+                showToast("LỖI DATABASE: " + ordErr.message, "error");
+                return; 
+            }
+
             if (ord && cart.length > 0) {
                 for (let item of cart) {
                     await sbClient.from('order_details').insert([{ order_id: ord[0].id, menu_id: item.id, quantity: item.qty }]);
@@ -1179,8 +1220,9 @@ async function filterReport(period) {
     }
 
     try {
-        // FIX: Thêm eq('branch_id', currentBranch) để báo cáo độc lập từng chi nhánh
-        const { data: currentOrders } = await sbClient.from('orders').select('*').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
+        const { data: currentOrders, error: errRep1 } = await sbClient.from('orders').select('*').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
+        if (errRep1) showToast("Lỗi tải Báo Cáo: " + errRep1.message, "error");
+        
         const { data: prevOrders } = await sbClient.from('orders').select('*').eq('branch_id', currentBranch).gte('created_at', prevStartDate.toISOString()).lt('created_at', prevEndDate.toISOString());
 
         let curTotal = 0; currentOrders?.forEach(o => curTotal += Number(o.total_amount));
@@ -1210,8 +1252,9 @@ async function filterReport(period) {
 
 async function renderItemsSoldToday(isoDateString) {
     try {
-        // FIX: Đã lọc item theo đúng nhánh
-        const { data: orders } = await sbClient.from('orders').select('id').eq('branch_id', currentBranch).gte('created_at', isoDateString);
+        const { data: orders, error: errItems } = await sbClient.from('orders').select('id').eq('branch_id', currentBranch).gte('created_at', isoDateString);
+        if (errItems) console.error("Lỗi get items sold:", errItems);
+        
         if (!orders || orders.length === 0) {
             document.getElementById('rep-items-today').innerHTML = '<div style="color:var(--t2);">Hôm nay chưa có giao dịch.</div>';
             return;
@@ -1242,8 +1285,8 @@ async function confirmExportAndClear() {
         else if (reportPeriod === 'week') { startDate = new Date(now); startDate.setDate(now.getDate() - 7); }
         else { startDate = new Date(now); startDate.setDate(now.getDate() - 30); }
 
-        // FIX: Export đúng branch
-        const { data: orders } = await sbClient.from('orders').select('*, order_details(quantity, menu(item_name, price))').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
+        const { data: orders, error: errExp } = await sbClient.from('orders').select('*, order_details(quantity, menu(item_name, price))').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
+        if (errExp) return showToast("LỖI CSDL KHI XUẤT: " + errExp.message, "error");
         if (!orders || orders.length === 0) return showToast("Không có dữ liệu để xuất!", "error");
 
         const excelMatrix = [
@@ -1393,6 +1436,11 @@ async function loadSettings() {
     document.getElementById('cfg-webhook').value = branchConfig.webhookUrl || '';
     document.getElementById('cfg-phone').value = branchConfig.phone || '';
 
+    if (currentUser.role === 'master') {
+        document.getElementById('cfg-show-inventory').checked = branchConfig.showInventory !== false;
+        document.getElementById('cfg-show-attendance').checked = branchConfig.showAttendance !== false;
+    }
+
     try {
         if (currentUser.role === 'master') {
             document.getElementById('master-branch-control').style.display = 'block';
@@ -1436,8 +1484,14 @@ function saveBranchSettings() {
     branchConfig.webhookUrl = document.getElementById('cfg-webhook').value;
     branchConfig.phone = document.getElementById('cfg-phone').value;
 
+    if (currentUser.role === 'master') {
+        branchConfig.showInventory = document.getElementById('cfg-show-inventory').checked;
+        branchConfig.showAttendance = document.getElementById('cfg-show-attendance').checked;
+    }
+
     localStorage.setItem('GAU_CFG', JSON.stringify(branchConfig));
     showToast("✅ Lưu cấu hình thành công!", "success");
+    applyFeatureToggles();
     renderZoneTabs(); checkCloudLimit();
 }
 
@@ -1447,7 +1501,6 @@ async function addUser() {
     const r = document.getElementById('new-u-role').value;
     if (!u || !p) return showToast("Nhập đủ thông tin", "error");
 
-    // FIX: Sếp Tổng tạo tài khoản Quản lý/Chủ thuê thì bắt chọn Mô hình kinh doanh
     if (r === 'tenant' || r === 'admin') {
         let htmlPopup = `
             <div id="popupChonMoHinh" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;">
@@ -1519,7 +1572,6 @@ async function addNewBranch() {
     }
 }
 
-// FIX: Hàm chia sẻ menu cho các chi nhánh (Sếp Tổng)
 async function moPopupChiaSeMenu() {
     const { data: br } = await sbClient.from('branches').select('id, name').neq('id', currentBranch);
     if (!br || br.length === 0) return showToast("Không có chi nhánh khác để chia sẻ!", "error");
