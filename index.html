@@ -75,7 +75,6 @@
         .box { background:rgba(13,18,32,0.9); padding:40px; border-radius:var(--r4); border:1px solid rgba(124,58,237,0.3); width:450px; max-width:90%; text-align:center; box-shadow:0 0 60px rgba(124,58,237,0.2); }
         .pay-box { width:580px; padding:30px; }
 
-        /* ĐÃ KHÔI PHỤC LẠI ĐÚNG ID MAIN-APP NHƯ CŨ TRÁNH SẬP WEB */
         #main-app { display:none; flex:1; width:100%; height:100%; overflow:hidden; flex-direction: row; }
         .sidebar { width:88px; background:rgba(6,8,15,0.95); border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; padding:20px 0; gap:8px; z-index:100; transition:0.3s; }
         .sidebar-logo { width:50px; height:50px; background:linear-gradient(135deg,var(--p),var(--gold)); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px; }
@@ -372,16 +371,6 @@
             <h2 style="font-size:1.6rem;font-weight:900;margin-bottom:24px;color:var(--gold)"><i class="fas fa-cogs"></i> Cài đặt Hệ thống</h2>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;">
                 <div class="glass-card">
-                    <h3 style="margin-bottom:20px;color:var(--p3);"><i class="fas fa-cubes"></i> Bật/Tắt Mô hình kinh doanh</h3>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;font-size:0.9rem;">
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-bida" class="mod-cb" style="width:18px;height:18px;"> Bida</label>
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-cafe" class="mod-cb" style="width:18px;height:18px;"> Cafe/Ăn</label>
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-karaoke" class="mod-cb" style="width:18px;height:18px;"> Karaoke</label>
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-homestay" class="mod-cb" style="width:18px;height:18px;"> Homestay</label>
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-hotel" class="mod-cb" style="width:18px;height:18px;"> Khách sạn</label>
-                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-motel" class="mod-cb" style="width:18px;height:18px;"> Nhà nghỉ</label>
-                    </div>
-                    <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
                     <h3 style="margin-bottom:20px;color:var(--gold3);"><i class="fas fa-clock"></i> Giá Bida / Karaoke / Phòng</h3>
                     <label class="field-label">Giá giờ/đêm thường (VNĐ)</label>
                     <input type="text" id="cfg-rate-normal" class="text-input currency-input" placeholder="VD: 50.000">
@@ -425,6 +414,7 @@
                     <div id="master-branch-control" style="background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;margin-bottom:20px;display:none;">
                         <label class="field-label" style="color:var(--gold)">Quản lý Đa Chi Nhánh (Chỉ Sếp Tổng)</label>
                         <button class="btn btn-outline" style="width:100%" onclick="addNewBranch()"><i class="fas fa-plus"></i> Tạo Chi nhánh mới</button>
+                        <button class="btn btn-p" style="width:100%; margin-top:10px;" onclick="moPopupChiaSeMenu()"><i class="fas fa-share-alt"></i> Chia sẻ Thực đơn sang Nhánh khác</button>
                         <select id="cfg-branch-select" class="select-input" style="margin-top:10px;margin-bottom:0;" onchange="changeBranch(this.value)"></select>
                     </div>
 
@@ -469,10 +459,15 @@
                 <span style="color:var(--t2);">⏱️ Đã dùng:</span><b id="bida-duration" style="color:var(--gold3);">0 phút</b>
             </div>
         </div>
+        
         <div style="background:rgba(0,0,0,0.4);padding:15px;border-radius:12px;border:1px solid var(--border);margin-bottom:20px;">
-            <div style="font-size:11px;color:var(--t2);font-weight:800;margin-bottom:10px;">GỌI MÓN/DỊCH VỤ NHANH</div>
-            <div id="quick-menu" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div style="font-size:11px;color:var(--t2);font-weight:800;">GỌI MÓN/DỊCH VỤ NHANH</div>
+                <input type="text" id="search-menu-input" class="text-input" style="width:60%; padding:8px 12px; margin:0; font-size:0.9rem; border-radius:8px;" placeholder="🔍 Tìm món nhanh..." onkeyup="searchMenu()">
+            </div>
+            <div id="quick-menu" style="display:grid;grid-template-columns:1fr 1fr;gap:8px; max-height:300px; overflow-y:auto; padding-right:5px;"></div>
         </div>
+        
         <div style="font-size:11px;color:var(--p3);font-weight:800;margin-bottom:10px;">CHI TIẾT ĐÃ GỌI</div>
         <div id="order-items"></div>
     </div>
@@ -838,10 +833,16 @@ async function openTable(id, type, status, name) {
 
     if (status === 'trống') {
         if (!MODEL_NAMES[type].hasTimer) {
-            await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', id);
-            saveCartsToSession();
-            status = 'đang dùng'; loadTables();
+            // Đã fix lỗi nhảy sang Đang Dùng ngay lập tức cho bàn Cafe
+            document.getElementById('drawer').classList.add('open');
+            document.getElementById('drawer-overlay').classList.add('open');
+            document.getElementById('bida-info').style.display = 'none';
+            document.getElementById('drawer-transfer').style.display = 'none';
+            acts.innerHTML = `<button class="btn btn-g" style="width:100%;border-radius:20px;padding:16px;font-size:1.1rem;" onclick="openPaymentModal('${id}','${type}')">THANH TOÁN</button>`;
+            activeTableStartTime = null;
+            renderQuickMenu(); renderCart(); return;
         } else {
+            // Bàn có tính giờ (Bida/Karaoke) thì hiện nút Bắt đầu
             document.getElementById('drawer').classList.add('open');
             document.getElementById('drawer-overlay').classList.add('open');
             document.getElementById('bida-info').style.display = 'none';
@@ -881,6 +882,7 @@ function closeDrawer() {
     document.getElementById('drawer-overlay').classList.remove('open');
     activeTableId = null;
     activeTableStartTime = null;
+    document.getElementById('search-menu-input').value = ''; // Reset khung tìm kiếm
 }
 
 async function startTable(id, type) {
@@ -891,13 +893,22 @@ async function startTable(id, type) {
     showToast("Đã mở thành công!", "success"); closeDrawer(); loadTables();
 }
 
+function searchMenu() {
+    let keyword = document.getElementById('search-menu-input').value.toLowerCase();
+    let items = document.querySelectorAll('.quick-item');
+    items.forEach(item => {
+        let itemName = item.getAttribute('data-name').toLowerCase();
+        item.style.display = itemName.includes(keyword) ? 'flex' : 'none';
+    });
+}
+
 async function renderQuickMenu() {
     try {
         const { data, error } = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
         if(error) throw error;
         if (data) {
             document.getElementById('quick-menu').innerHTML = data.map(m => `
-                <div class="quick-item" onclick="addToCart('${m.id}','${m.item_name.replace(/'/g,"\\'")}',${m.price})">
+                <div class="quick-item" data-name="${m.item_name}" onclick="addToCart('${m.id}','${m.item_name.replace(/'/g,"\\'")}',${m.price})">
                     <div><b style="font-size:0.9rem">${m.item_name}</b><div style="color:var(--p3);font-size:0.8rem">${m.price.toLocaleString()}đ</div></div>
                     <div style="background:var(--p);width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:white">+</div>
                 </div>
@@ -906,13 +917,22 @@ async function renderQuickMenu() {
     } catch(e) { console.error(e); }
 }
 
-function addToCart(id, name, price) {
+async function addToCart(id, name, price) {
     if (!localCarts[activeTableId]) localCarts[activeTableId] = [];
     let cart = localCarts[activeTableId];
     let item = cart.find(i => i.id === id);
     if (item) item.qty++; else cart.push({ id, name, price, qty: 1 });
     saveCartsToSession();
     renderCart();
+
+    // Auto chuyển bàn thành đang dùng nếu vừa gọi món đầu tiên
+    try {
+        const { data } = await sbClient.from('zones_tables').select('status').eq('id', activeTableId).single();
+        if (data && data.status === 'trống') {
+            await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', activeTableId);
+            loadTables();
+        }
+    } catch(e) {}
 }
 
 function updateQty(id, delta) {
@@ -1101,8 +1121,9 @@ async function processCheckout() {
         }
 
         if (totalAmount > 0 || cart.length > 0) {
+            // FIX: Đã thêm branch_id vào lúc lưu hóa đơn để báo cáo không bị tràn data
             const { data: ord, error: ordErr } = await sbClient.from('orders').insert([{
-                table_id: tableId, user_id: currentUser.id,
+                table_id: tableId, user_id: currentUser.id, branch_id: currentBranch,
                 total_amount: totalAmount, discount_pct: discountPct || 0, discount_amt: discountAmt || 0
             }]).select();
             
@@ -1158,8 +1179,9 @@ async function filterReport(period) {
     }
 
     try {
-        const { data: currentOrders } = await sbClient.from('orders').select('*').gte('created_at', startDate.toISOString());
-        const { data: prevOrders } = await sbClient.from('orders').select('*').gte('created_at', prevStartDate.toISOString()).lt('created_at', prevEndDate.toISOString());
+        // FIX: Thêm eq('branch_id', currentBranch) để báo cáo độc lập từng chi nhánh
+        const { data: currentOrders } = await sbClient.from('orders').select('*').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
+        const { data: prevOrders } = await sbClient.from('orders').select('*').eq('branch_id', currentBranch).gte('created_at', prevStartDate.toISOString()).lt('created_at', prevEndDate.toISOString());
 
         let curTotal = 0; currentOrders?.forEach(o => curTotal += Number(o.total_amount));
         let prevTotal = 0; prevOrders?.forEach(o => prevTotal += Number(o.total_amount));
@@ -1188,7 +1210,8 @@ async function filterReport(period) {
 
 async function renderItemsSoldToday(isoDateString) {
     try {
-        const { data: orders } = await sbClient.from('orders').select('id').gte('created_at', isoDateString);
+        // FIX: Đã lọc item theo đúng nhánh
+        const { data: orders } = await sbClient.from('orders').select('id').eq('branch_id', currentBranch).gte('created_at', isoDateString);
         if (!orders || orders.length === 0) {
             document.getElementById('rep-items-today').innerHTML = '<div style="color:var(--t2);">Hôm nay chưa có giao dịch.</div>';
             return;
@@ -1219,7 +1242,8 @@ async function confirmExportAndClear() {
         else if (reportPeriod === 'week') { startDate = new Date(now); startDate.setDate(now.getDate() - 7); }
         else { startDate = new Date(now); startDate.setDate(now.getDate() - 30); }
 
-        const { data: orders } = await sbClient.from('orders').select('*, order_details(quantity, menu(item_name, price))').gte('created_at', startDate.toISOString());
+        // FIX: Export đúng branch
+        const { data: orders } = await sbClient.from('orders').select('*, order_details(quantity, menu(item_name, price))').eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
         if (!orders || orders.length === 0) return showToast("Không có dữ liệu để xuất!", "error");
 
         const excelMatrix = [
@@ -1259,7 +1283,7 @@ async function confirmExportAndClear() {
         XLSX.writeFile(wb, `GauPOS_Backup_${new Date().getTime()}.xlsx`);
 
         showToast("Đã tải xong Excel! Đang dọn Cloud...", "info");
-        await sbClient.from('orders').delete().gte('created_at', startDate.toISOString());
+        await sbClient.from('orders').delete().eq('branch_id', currentBranch).gte('created_at', startDate.toISOString());
         showToast("Dọn dẹp Cloud thành công! Đang làm mới...", "success");
         setTimeout(() => window.location.reload(), 1500);
     } catch(e) { showToast("Lỗi khi xuất/xóa Database.", "error"); console.error(e); }
@@ -1355,10 +1379,6 @@ async function addInventoryItem() {
 }
 
 async function loadSettings() {
-    ['bida','cafe','karaoke','homestay','hotel','motel'].forEach(m => {
-        const cb = document.getElementById(`mod-${m}`);
-        if(cb) cb.checked = branchConfig.models.includes(m);
-    });
     document.getElementById('cfg-rate-normal').value = (branchConfig.rateNormal||0).toLocaleString('vi-VN').replace(/,/g,'.');
     document.getElementById('cfg-rate-peak').value = (branchConfig.ratePeak||0).toLocaleString('vi-VN').replace(/,/g,'.');
     document.getElementById('cfg-peak-start').value = branchConfig.peakStart;
@@ -1402,14 +1422,6 @@ function saveBranchSettings() {
     const bankAccountInput = document.getElementById('cfg-bank-acc').value;
     if (bankAccountInput && !/^\d+$/.test(bankAccountInput)) return showToast("Số tài khoản chỉ được chứa số.", "error");
 
-    let models = [];
-    ['bida','cafe','karaoke','homestay','hotel','motel'].forEach(m => {
-        const cb = document.getElementById(`mod-${m}`);
-        if (cb && cb.checked) models.push(m);
-    });
-    if (models.length === 0) return showToast("Phải chọn ít nhất 1 mô hình!", "error");
-
-    branchConfig.models = models;
     branchConfig.rateNormal = Number(document.getElementById('cfg-rate-normal').value.replace(/\D/g, ''));
     branchConfig.ratePeak = Number(document.getElementById('cfg-rate-peak').value.replace(/\D/g, ''));
     branchConfig.peakStart = document.getElementById('cfg-peak-start').value;
@@ -1434,12 +1446,57 @@ async function addUser() {
     const p = document.getElementById('new-u-pass').value;
     const r = document.getElementById('new-u-role').value;
     if (!u || !p) return showToast("Nhập đủ thông tin", "error");
-    try {
-        await sbClient.from('users').insert([{ username: u, password: p, role: r, branch_id: currentBranch }]);
-        showToast("Tạo tài khoản thành công!", "success");
-        document.getElementById('new-u-name').value = ''; document.getElementById('new-u-pass').value = '';
-        loadSettings();
-    } catch(e) { showToast("Lỗi tạo user!", "error"); }
+
+    // FIX: Sếp Tổng tạo tài khoản Quản lý/Chủ thuê thì bắt chọn Mô hình kinh doanh
+    if (r === 'tenant' || r === 'admin') {
+        let htmlPopup = `
+            <div id="popupChonMoHinh" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+                <div style="background: var(--bg2); padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; color: white; border: 1px solid var(--p3); box-shadow: 0 0 40px rgba(124,58,237,0.4);">
+                    <h3 style="text-align: center; margin-bottom: 25px; color: var(--gold3);">Cấp quyền Mô hình kinh doanh</h3>
+                    <div style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px;">
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="bida" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Khu Bida</label>
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="cafe" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Khu Cafe/Ăn</label>
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="karaoke" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Karaoke</label>
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="homestay" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Homestay</label>
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="hotel" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Khách sạn</label>
+                        <label style="display: flex; align-items: center; font-size: 16px; cursor: pointer;"><input type="checkbox" value="motel" class="check-mo-hinh" style="margin-right: 15px; transform: scale(1.5);"> Nhà nghỉ</label>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="document.getElementById('popupChonMoHinh').remove()" style="flex:1; padding: 12px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Hủy</button>
+                        <button id="btnXacNhanMoHinh" style="flex:2; padding: 12px; background: var(--p); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Tạo & Cấp quyền</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', htmlPopup);
+
+        document.getElementById('btnXacNhanMoHinh').onclick = async () => {
+            let danhSachDaChon = Array.from(document.querySelectorAll('.check-mo-hinh:checked')).map(o => o.value);
+            if (danhSachDaChon.length === 0) return showToast("Phải chọn ít nhất 1 mô hình!", "error");
+            
+            document.getElementById('popupChonMoHinh').remove();
+            showToast("Đang tạo tài khoản...", "info");
+            try {
+                const { data, error } = await sbClient.from('users').insert([{ username: u, password: p, role: r, branch_id: currentBranch }]);
+                if (error) throw error;
+                
+                branchConfig.models = danhSachDaChon;
+                localStorage.setItem('GAU_CFG', JSON.stringify(branchConfig));
+                renderZoneTabs();
+                
+                showToast("Đã tạo và cấp quyền mô hình thành công!", "success");
+                document.getElementById('new-u-name').value = ''; document.getElementById('new-u-pass').value = '';
+                loadSettings();
+            } catch(e) { showToast("Lỗi tạo user!", "error"); }
+        };
+    } else {
+        try {
+            await sbClient.from('users').insert([{ username: u, password: p, role: r, branch_id: currentBranch }]);
+            showToast("Tạo tài khoản thành công!", "success");
+            document.getElementById('new-u-name').value = ''; document.getElementById('new-u-pass').value = '';
+            loadSettings();
+        } catch(e) { showToast("Lỗi tạo user!", "error"); }
+    }
 }
 
 async function delUser(id) {
@@ -1459,6 +1516,29 @@ async function addNewBranch() {
             await sbClient.from('branches').insert([{ id, name }]);
             showToast("Tạo chi nhánh thành công", "success"); loadSettings();
         } catch(e) { showToast("Lỗi tạo nhánh!", "error"); }
+    }
+}
+
+// FIX: Hàm chia sẻ menu cho các chi nhánh (Sếp Tổng)
+async function moPopupChiaSeMenu() {
+    const { data: br } = await sbClient.from('branches').select('id, name').neq('id', currentBranch);
+    if (!br || br.length === 0) return showToast("Không có chi nhánh khác để chia sẻ!", "error");
+    
+    const options = br.map(b => ({ value: b.id, label: b.name }));
+    const targetId = await gModal("Chia sẻ Thực đơn", "Chọn chi nhánh sẽ nhận copy Menu từ tiệm này:", "select", "share-alt", "var(--p3)", options);
+    
+    if (targetId) {
+        showToast("Đang đồng bộ Menu...", "info");
+        try {
+            const { data: menuGoc } = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
+            if (menuGoc && menuGoc.length > 0) {
+                let menuMoi = menuGoc.map(m => { let copy = {...m}; delete copy.id; copy.branch_id = targetId; return copy; });
+                await sbClient.from('menu').insert(menuMoi);
+                showToast("Đã chia sẻ Menu thành công!", "success");
+            } else {
+                showToast("Menu hiện tại đang trống, không có gì để chia sẻ!", "error");
+            }
+        } catch(e) { showToast("Lỗi khi chia sẻ Menu!", "error"); }
     }
 }
 
