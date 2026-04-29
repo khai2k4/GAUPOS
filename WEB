@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>GẤU POS • V65 PRO (FIX LỖI TRẮNG MÀN)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --p: #7c3aed; --p2: #6d28d9; --p3: #a78bfa;
+            --gold: #f59e0b; --gold2: #d97706; --gold3: #fcd34d;
+            --green: #10b981; --green2: #059669; --green3: #6ee7b7;
+            --red: #ef4444; --red2: #dc2626; --orange: #f97316;
+            --bg: #06080f; --bg2: #0d1220; --card: rgba(17,24,39,0.75);
+            --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
+            --t1: #f9fafb; --t2: #9ca3af; --t3: #4b5563;
+            --r1: 12px; --r2: 18px; --r3: 24px; --r4: 32px;
+            --spring: cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body, input, button, select { font-family:'Plus Jakarta Sans',sans-serif; }
+        body { background:var(--bg); color:var(--t1); display:flex; height:100dvh; overflow:hidden; position:relative; flex-direction:column; }
+
+        #cloud-warning-banner {
+            display: none; background: linear-gradient(90deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95));
+            color: white; font-weight: 800; font-size: 0.85rem; padding: 10px 20px; gap: 10px; 
+            align-items: center; justify-content: center; text-align: center; z-index: 9998; 
+            border-bottom: 1px solid rgba(255,255,255,0.2); animation: bannerPulse 2s ease-in-out infinite; flex-shrink: 0;
+        }
+        @keyframes bannerPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 20px 4px rgba(239,68,68,0.3); } }
+        #cloud-warning-banner .btn-banner { background: white; color: var(--red2); border: none; padding: 4px 12px; border-radius: 20px; font-weight: 900; font-size: 0.8rem; cursor: pointer; margin-left: 10px; }
+
+        .bg-grid { position:fixed; inset:0; pointer-events:none; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size:50px 50px; z-index:-2; }
+        .bg-orb { position:fixed; border-radius:50%; filter:blur(100px); pointer-events:none; z-index:-1; animation:orbFloat 15s ease-in-out infinite; }
+        .bg-orb:nth-child(1) { width:600px; height:600px; background:radial-gradient(circle,rgba(124,58,237,0.15),transparent 70%); top:-200px; left:-100px; }
+        .bg-orb:nth-child(2) { width:500px; height:500px; background:radial-gradient(circle,rgba(16,185,129,0.1),transparent 70%); bottom:-150px; right:-100px; animation-delay:-5s; }
+        @keyframes orbFloat { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-20px)} }
+
+        ::-webkit-scrollbar{width:6px;height:6px}
+        ::-webkit-scrollbar-track{background:transparent}
+        ::-webkit-scrollbar-thumb{background:var(--p3);border-radius:10px}
+
+        .btn { padding:12px 24px; border-radius:var(--r2); border:none; font-weight:800; font-size:0.95rem; cursor:pointer; transition:all 0.25s var(--spring); display:inline-flex; align-items:center; justify-content:center; gap:8px; color:white; position:relative; z-index:1; }
+        .btn:active { transform:scale(0.95); }
+        .btn-p { background:linear-gradient(135deg,var(--p),var(--p2)); box-shadow:0 5px 20px rgba(124,58,237,0.4); border:1px solid rgba(255,255,255,0.1); }
+        .btn-g { background:linear-gradient(135deg,var(--green),var(--green2)); box-shadow:0 5px 20px rgba(16,185,129,0.4); border:1px solid rgba(255,255,255,0.1); }
+        .btn-gold { background:linear-gradient(135deg,var(--gold),var(--gold2)); color:black; box-shadow:0 5px 20px rgba(245,158,11,0.4); }
+        .btn-danger { background:linear-gradient(135deg,var(--red),var(--red2)); box-shadow:0 5px 20px rgba(239,68,68,0.4); }
+        .btn-outline { background:rgba(255,255,255,0.05); border:1px solid var(--border2); color:var(--t1); transition:0.3s; }
+        .btn-outline:hover, .btn-outline.active { background:rgba(124,58,237,0.2); border-color:var(--p3); color:white; }
+
+        .text-input, .select-input { width:100%; padding:14px 16px; background:rgba(0,0,0,0.5); border:1px solid var(--border2); border-radius:var(--r1); color:white; margin-bottom:14px; outline:none; transition:0.3s; }
+        .text-input:focus, .select-input:focus { border-color:var(--p3); box-shadow:0 0 0 3px rgba(124,58,237,0.2); }
+        .select-input option { background: var(--bg2); color: white; }
+        .field-label { display:block; margin-bottom:8px; color:var(--t2); font-weight:700; font-size:0.85rem; }
+
+        .delete-menu-item-btn { position:relative; z-index:10; background:rgba(239,68,68,0.1); border:1px solid var(--red); color:var(--red); border-radius:8px; padding:8px 12px; cursor:pointer; transition:0.3s; }
+        .delete-menu-item-btn:hover { background:var(--red); color:white; transform:scale(1.1); }
+        .menu-item-row { display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid var(--border); transition:0.3s; }
+        .menu-item-row:hover { background:rgba(255,255,255,0.02); }
+
+        .g-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:9999; display:none; align-items:center; justify-content:center; opacity:0; transition:0.3s ease; }
+        .g-modal-overlay.active { display:flex; opacity:1; }
+        .g-modal-box { background:var(--bg2); padding:30px; border-radius:var(--r4); border:1px solid var(--p3); width:400px; max-width:90%; text-align:center; transform:scale(0.9); transition:0.3s var(--spring); box-shadow:0 0 50px rgba(124,58,237,0.3); }
+        .g-modal-overlay.active .g-modal-box { transform:scale(1); }
+
+        .overlay-screen, .payment-overlay { position:fixed; inset:0; background:radial-gradient(ellipse 130% 100% at 50% 0%,rgba(124,58,237,0.2),rgba(0,0,0,0.9) 65%); z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; backdrop-filter:blur(10px); transition:0.4s ease; }
+        .payment-overlay { display:none; opacity:0; }
+        .payment-overlay.active { display:flex; opacity:1; }
+        .box { background:rgba(13,18,32,0.9); padding:40px; border-radius:var(--r4); border:1px solid rgba(124,58,237,0.3); width:450px; max-width:90%; text-align:center; box-shadow:0 0 60px rgba(124,58,237,0.2); }
+        .pay-box { width:580px; padding:30px; }
+
+        /* ĐÃ KHÔI PHỤC LẠI ĐÚNG ID MAIN-APP NHƯ CŨ TRÁNH SẬP WEB */
+        #main-app { display:none; flex:1; width:100%; height:100%; overflow:hidden; flex-direction: row; }
+        .sidebar { width:88px; background:rgba(6,8,15,0.95); border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; padding:20px 0; gap:8px; z-index:100; transition:0.3s; }
+        .sidebar-logo { width:50px; height:50px; background:linear-gradient(135deg,var(--p),var(--gold)); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:20px; }
+        .nav-btn { width:70px; padding:12px 0; background:transparent; border:none; color:var(--t3); cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:6px; font-weight:800; font-size:9px; text-transform:uppercase; border-radius:12px; transition:0.3s; }
+        .nav-btn.active { color:white; background:rgba(124,58,237,0.2); }
+        .nav-btn.active i { color:var(--p3); }
+        .nav-btn i { font-size:20px; }
+        .wrapper { flex:1; display:flex; flex-direction:column; overflow:hidden; position:relative; z-index:1; }
+        .header { padding:14px 28px; background:rgba(6,8,15,0.7); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .view { display:none; flex:1; padding:24px; overflow-y:auto; }
+        .view.active { display:block; animation:viewIn 0.4s ease; }
+        @keyframes viewIn { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:none} }
+
+        @media (max-width:900px) {
+            #main-app { flex-direction:column; }
+            .sidebar { width:100%; height:auto; min-height:70px; flex-direction:row; justify-content:space-around; padding:0 5px; padding-bottom:env(safe-area-inset-bottom); border-right:none; border-top:1px solid var(--border); position:fixed; bottom:0; left:0; right:0; z-index:9000; box-shadow:0 -5px 20px rgba(0,0,0,0.5); background:rgba(6,8,15,0.98); backdrop-filter:blur(20px); }
+            .sidebar-logo { display:none; }
+            .nav-btn { width:auto; flex:1; padding:12px 0; justify-content:center; border-radius:0; font-size:10px; gap:4px; }
+            .nav-btn.active { background:transparent; border-top:3px solid var(--p3); color:var(--p3); }
+            .wrapper { height:calc(100dvh - 70px - env(safe-area-inset-bottom)); margin-bottom:calc(70px + env(safe-area-inset-bottom)); }
+            .text-input, .select-input { font-size:16px; padding:12px 15px; }
+            .header { padding:10px 15px; }
+            #display-branch-name { font-size:18px !important; }
+            .view { padding:15px; }
+            .tables-grid { grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; padding-bottom:30px; }
+            .table-card { padding:15px; }
+            .tbl-icon { font-size:28px; margin-bottom:5px; }
+            .tbl-name { font-size:1rem; }
+            .pay-box { width:95%; padding:20px 15px; }
+            #pay-amount-display { font-size:2.2rem !important; margin-bottom:15px !important; }
+            .glass-card { padding:15px; }
+            .stats-grid { grid-template-columns:1fr; gap:15px; }
+            .bill-drawer { width:100% !important; right:-100%; }
+            .drawer-body { padding:15px; }
+            .drawer-footer { padding:15px; padding-bottom:calc(15px + env(safe-area-inset-bottom)); }
+            #drawer-total { font-size:1.6rem !important; }
+            #toast-container { bottom:calc(85px + env(safe-area-inset-bottom)); right:10px; left:10px; }
+        }
+
+        .zone-tabs { display:flex; gap:10px; margin-bottom:20px; overflow-x:auto; padding-bottom:5px; scrollbar-width:none; }
+        .zone-tab { padding:10px 24px; border-radius:var(--r1); font-weight:800; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--t2); transition:0.3s; white-space:nowrap; }
+        .zone-tab.active { background:linear-gradient(135deg,var(--p),var(--p2)); color:white; border-color:var(--p3); box-shadow:0 4px 15px rgba(124,58,237,0.4); }
+        .tables-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:18px; padding-bottom:20px; }
+        .table-card { background:var(--card); backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:var(--r3); padding:20px; text-align:center; cursor:pointer; transition:0.3s; position:relative; }
+        .table-card:hover { transform:translateY(-5px); border-color:var(--p3); box-shadow:0 10px 20px rgba(0,0,0,0.5); }
+        .table-card.busy { border-color:var(--gold); background:rgba(245,158,11,0.08); }
+        .tbl-icon { font-size:36px; margin-bottom:10px; color:var(--t3); }
+        .busy .tbl-icon { color:var(--gold); filter:drop-shadow(0 0 10px rgba(245,158,11,0.5)); }
+        .tbl-name { font-size:1.1rem; font-weight:800; margin-bottom:5px; }
+        .tbl-status { font-size:0.75rem; font-weight:900; text-transform:uppercase; color:var(--t2); background:rgba(255,255,255,0.05); padding:4px 10px; border-radius:10px; display:inline-block; }
+        .busy .tbl-status { color:var(--gold3); background:rgba(245,158,11,0.2); border-color:rgba(245,158,11,0.3); }
+        .tbl-time { font-family:'Space Grotesk',monospace; font-size:1.1rem; font-weight:800; margin-top:10px; color:var(--green3); }
+
+        .drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:8000; display:none; }
+        .bill-drawer { position:fixed; top:0; right:-480px; width:480px; max-width:100%; height:100dvh; background:var(--bg2); border-left:1px solid var(--border2); z-index:8001; transition:0.4s cubic-bezier(0.4,0,0.2,1); display:flex; flex-direction:column; }
+        .bill-drawer.open { right:0; }
+        .drawer-overlay.open { display:block; }
+        .drawer-header { padding:20px; background:rgba(0,0,0,0.6); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+        .drawer-body { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:15px; }
+        .drawer-footer { padding:20px; background:rgba(0,0,0,0.8); border-top:1px solid var(--border); }
+        .quick-item { background:rgba(255,255,255,0.05); border:1px solid var(--border); padding:10px; border-radius:var(--r1); display:flex; justify-content:space-between; align-items:center; cursor:pointer; }
+        .quick-item:hover { border-color:var(--p3); background:rgba(124,58,237,0.1); }
+        .qty-ctrl { display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.5); padding:5px; border-radius:8px; border:1px solid var(--border2); }
+        .qty-btn { width:28px; height:28px; border-radius:6px; border:none; background:rgba(255,255,255,0.1); color:white; cursor:pointer; }
+
+        .glass-card { background:var(--card); border:1px solid var(--border); border-radius:var(--r3); padding:24px; margin-bottom:20px; overflow-x:auto; }
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin-bottom:24px; }
+        table { width:100%; border-collapse:collapse; margin-top:15px; min-width:400px; }
+        th,td { padding:12px 15px; text-align:left; border-bottom:1px solid var(--border); font-size:0.9rem; }
+        th { color:var(--t2); font-weight:800; text-transform:uppercase; font-size:0.75rem; }
+
+        .discount-section { background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:var(--r2); padding:15px; margin-top:15px; }
+        .discount-section label { font-size:0.8rem; color:var(--gold3); font-weight:800; display:block; margin-bottom:8px; }
+        .discount-input-wrap { display:flex; gap:10px; align-items:center; }
+        .discount-input-wrap input { flex:1; padding:10px 14px; background:rgba(0,0,0,0.5); border:1px solid rgba(245,158,11,0.4); border-radius:var(--r1); color:var(--gold3); font-size:1.1rem; font-weight:900; outline:none; transition:0.3s; text-align:center; }
+        .discount-input-wrap input:focus { border-color:var(--gold); }
+        .discount-input-wrap span { color:var(--gold3); font-weight:900; font-size:1.2rem; }
+        #discount-amount-show { margin-top:8px; font-size:0.85rem; color:var(--gold3); font-weight:800; min-height:1.2em; text-align:center; }
+
+        #toast-container { position:fixed; bottom:30px; right:30px; z-index:9999999; display:flex; flex-direction:column; gap:10px; }
+        .toast { padding:15px 22px; border-radius:var(--r2); font-weight:800; display:flex; align-items:center; gap:12px; background:var(--bg2); border:1px solid var(--border2); animation:toastIn 0.3s forwards; box-shadow:0 10px 30px rgba(0,0,0,0.5); }
+        @keyframes toastIn { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+        #print-area { display:none; }
+        @media print {
+            html, body { height:auto!important; overflow:visible!important; display:block!important; background:white!important; color:black!important; }
+            body > *:not(#print-area) { display:none!important; }
+            #cloud-warning-banner { display:none!important; }
+            #print-area { display:block!important; position:static!important; visibility:visible!important; width:100%!important; padding:0!important; margin:0!important; color:black!important; font-family:'Courier New',Courier,monospace!important; font-size: 14px !important; }
+            #print-area * { visibility:visible!important; }
+            @page { size:80mm auto; margin:0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-orb"></div><div class="bg-orb"></div><div class="bg-grid"></div>
+
+<div id="cloud-warning-banner">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="cloud-warning-text">...</span>
+    <button class="btn-banner" onclick="goToReport()"><i class="fas fa-file-excel"></i> Dọn Cloud ngay</button>
+</div>
+
+<div id="g-modal" class="g-modal-overlay">
+    <div class="g-modal-box">
+        <div id="g-modal-icon" style="font-size:45px;margin-bottom:15px;"></div>
+        <h2 id="g-modal-title" style="color:white;margin-bottom:10px;font-weight:900;">Tiêu đề</h2>
+        <p id="g-modal-desc" style="color:var(--t2);font-size:0.95rem;margin-bottom:20px;line-height:1.5;white-space:pre-line;">Mô tả</p>
+        
+        <input type="text" id="g-modal-input" class="text-input" style="display:none;text-align:center;font-size:1.1rem;font-weight:bold;">
+        <select id="g-modal-select" class="select-input" style="display:none;font-size:1.1rem;font-weight:bold;"></select>
+        
+        <div id="g-modal-actions" style="display:flex;gap:10px;justify-content:center;"></div>
+    </div>
+</div>
+
+<div id="setup-screen" class="overlay-screen" style="display:none;">
+    <div class="box" style="border-color:var(--gold);box-shadow:0 0 60px rgba(245,158,11,0.2);">
+        <div style="font-size:50px;margin-bottom:10px;">☁️</div>
+        <h2 style="color:var(--gold3);margin-bottom:10px;">KẾT NỐI ĐÁM MÂY</h2>
+        <p style="color:var(--t2);font-size:0.85rem;margin-bottom:20px;">Nhập URL và Key của Supabase để lưu trữ dữ liệu vĩnh viễn.</p>
+        <input type="text" id="setup-url" class="text-input" placeholder="Supabase Project URL">
+        <input type="text" id="setup-key" class="text-input" placeholder="Supabase Anon Key">
+        <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
+        <p style="color:var(--p3);font-size:0.85rem;margin-bottom:15px;font-weight:bold;">Tạo Tài khoản Sếp Tổng (Master)</p>
+        <input type="text" id="setup-user" class="text-input" placeholder="Tên đăng nhập (VD: sếp khai)">
+        <input type="password" id="setup-pass" class="text-input" placeholder="Mật khẩu">
+        <button class="btn btn-gold" style="width:100%;border-radius:20px;margin-top:10px;" onclick="handleSetup()"><i class="fas fa-satellite-dish"></i> KHỞI TẠO HỆ THỐNG</button>
+    </div>
+</div>
+
+<div id="login-screen" class="overlay-screen" style="display:none;">
+    <div class="box">
+        <div style="font-size:64px;margin-bottom:10px;filter:drop-shadow(0 0 20px var(--p));">🐻</div>
+        <h1 style="color:var(--p3);margin-bottom:30px;">GẤU POS</h1>
+        <input type="text" id="login-user" class="text-input" placeholder="Tên đăng nhập">
+        <input type="password" id="login-pass" class="text-input" placeholder="Mật khẩu">
+        <button class="btn btn-p" style="width:100%;border-radius:20px;" onclick="handleLogin()"><i class="fas fa-rocket"></i> VÀO HỆ THỐNG</button>
+        <div style="margin-top:15px;"><a href="#" style="color:var(--t3);font-size:0.8rem;text-decoration:underline;" onclick="resetSetup()">Đổi Link Cloud Khác</a></div>
+    </div>
+</div>
+
+<div id="payment-modal" class="payment-overlay">
+    <div class="box pay-box">
+        <h2 style="color:var(--gold);margin-bottom:5px;">PHƯƠNG THỨC THANH TOÁN</h2>
+        <div style="font-size:0.9rem;color:var(--t2);margin-bottom:10px;" id="pay-table-name">Bàn ...</div>
+
+        <div style="font-size:0.8rem;color:var(--t3);text-decoration:line-through;" id="pay-original-display" style="min-height:1.2em;"></div>
+        <div id="pay-amount-display" style="font-size:3rem;color:var(--green3);font-weight:900;font-family:'Space Grotesk'">0đ</div>
+
+        <div class="discount-section">
+            <label><i class="fas fa-tag"></i> GIẢM GIÁ CHO KHÁCH (%)</label>
+            <div class="discount-input-wrap">
+                <input type="number" id="discount-pct" min="0" max="100" value="0" placeholder="0" oninput="applyDiscount()">
+                <span>%</span>
+            </div>
+            <div id="discount-amount-show"></div>
+        </div>
+
+        <div style="display:flex;gap:15px;margin-top:20px;">
+            <button class="btn btn-outline" id="btn-pay-cash" style="flex:1;height:100px;flex-direction:column;border-radius:20px;" onclick="selectPayMethod('cash')">
+                <i class="fas fa-money-bill-wave" style="font-size:28px;color:var(--green);margin-bottom:8px;"></i> <span>Tiền Mặt</span>
+            </button>
+            <button class="btn btn-outline" id="btn-pay-qr" style="flex:1;height:100px;flex-direction:column;border-radius:20px;" onclick="selectPayMethod('qr')">
+                <i class="fas fa-qrcode" style="font-size:28px;color:var(--p3);margin-bottom:8px;"></i> <span>VietQR</span>
+            </button>
+        </div>
+
+        <div id="cash-section" style="display:none;margin-top:20px;">
+            <button class="btn btn-g" style="width:100%;padding:16px;font-size:1.1rem;border-radius:20px;" onclick="processCheckout()">XÁC NHẬN THANH TOÁN MẶT</button>
+        </div>
+
+        <div id="qr-section" style="display:none;margin-top:20px;background:rgba(255,255,255,0.05);padding:20px;border-radius:20px;border:1px solid var(--p3);">
+            <img id="vietqr-img" src="" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:15px;background:white;padding:10px;">
+            <button class="btn btn-p" style="width:100%;border-radius:12px;" onclick="processCheckout()">XÁC NHẬN THANH TOÁN QR</button>
+        </div>
+
+        <div style="margin-top:15px;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,0.3);padding:12px;border-radius:15px;">
+            <label style="display:flex;align-items:center;gap:10px;color:var(--t1);font-weight:bold;cursor:pointer;">
+                <input type="checkbox" id="cb-print-bill" style="width:18px;height:18px;cursor:pointer;"> Tự động In hóa đơn khi Xong
+            </label>
+        </div>
+        <button onclick="closePaymentModal()" style="margin-top:15px;background:none;border:none;color:var(--t3);text-decoration:underline;cursor:pointer;">Hủy / Quay lại</button>
+    </div>
+</div>
+
+<div id="main-app">
+    <nav class="sidebar">
+        <div class="sidebar-logo">🐻</div>
+        <button class="nav-btn active" data-view="pos"><i class="fas fa-cash-register"></i><span>Bán hàng</span></button>
+        <button class="nav-btn" data-view="menu-admin"><i class="fas fa-utensils"></i><span>Thực đơn</span></button>
+        <button class="nav-btn" data-view="inventory"><i class="fas fa-boxes"></i><span>Kho hàng</span></button>
+        <button class="nav-btn" data-view="report" id="tab-report" style="display:none"><i class="fas fa-chart-bar"></i><span>Báo cáo</span></button>
+        <button class="nav-btn" data-view="attendance"><i class="fas fa-user-clock"></i><span>Chấm công</span></button>
+        <button class="nav-btn" data-view="settings" id="tab-settings" style="display:none;"><i class="fas fa-cogs"></i><span>Cài đặt</span></button>
+        <button class="nav-btn" style="color:var(--orange);" onclick="confirmLogout()"><i class="fas fa-sign-out-alt"></i><span>Thoát</span></button>
+    </nav>
+
+    <div class="wrapper">
+        <header class="header">
+            <div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:20px;font-weight:900;" id="display-branch-name">Tiệm Nhà Gấu</span>
+                    <button id="btn-edit-branch" style="display:none;background:rgba(255,255,255,0.1);border:none;color:white;padding:5px 8px;border-radius:8px;cursor:pointer;font-size:12px;" onclick="editBranchName()"><i class="fas fa-pen"></i></button>
+                </div>
+                <span style="font-size:11px;font-weight:800;color:var(--t2);display:block;margin-top:2px;">V65 PRO • BẢN FIX MƯỢT</span>
+            </div>
+            <div style="padding:6px 14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--green3);border-radius:20px;font-size:0.8rem;font-weight:800;">
+                <i class="fas fa-user-shield"></i> <span id="header-user-name">...</span>
+            </div>
+        </header>
+
+        <section id="pos" class="view active">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;align-items:center;gap:15px;">
+                    <div id="dynamic-zone-tabs" class="zone-tabs" style="margin-bottom:0;"></div>
+                    <button class="btn btn-outline" style="padding:8px 15px;" onclick="renameCurrentZone()"><i class="fas fa-edit"></i> Sửa Tên Zone</button>
+                </div>
+                <button class="btn btn-outline" onclick="addTable()"><i class="fas fa-plus"></i> Thêm Bàn/Phòng</button>
+            </div>
+            <div class="tables-grid" id="tables-container"></div>
+        </section>
+
+        <section id="menu-admin" class="view">
+            <h2 style="color:var(--p3);margin-bottom:20px;"><i class="fas fa-utensils"></i> Quản lý Thực đơn</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+                <div class="glass-card"><div id="menu-list"></div></div>
+                <div class="glass-card" style="position:sticky;top:0;height:fit-content;">
+                    <h3 style="margin-bottom:20px;color:var(--green3);">Thêm Món Mới</h3>
+                    <input type="text" id="m-name" class="text-input" placeholder="Tên món">
+                    <input type="text" id="m-price" class="text-input currency-input" placeholder="Giá bán (VNĐ)">
+                    <input type="text" id="m-unit" class="text-input" placeholder="Đơn vị (Ly, Tô, Lượt...)">
+                    <button class="btn btn-p" style="width:100%" onclick="addMenuItem()">LƯU MÓN</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="inventory" class="view">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+                <h2 style="color:var(--gold3);margin:0;"><i class="fas fa-boxes"></i> Tồn kho nguyên liệu</h2>
+                <button class="btn btn-gold" onclick="addInventoryItem()"><i class="fas fa-plus"></i> Nhập Kho</button>
+            </div>
+            <div class="tables-grid" id="inventory-list"></div>
+        </section>
+
+        <section id="attendance" class="view">
+            <div style="background:linear-gradient(135deg,rgba(124,58,237,0.1),rgba(16,185,129,0.1));border:1px solid var(--p3);border-radius:24px;padding:40px 20px;text-align:center;max-width:600px;margin:20px auto;">
+                <div style="font-size:60px;margin-bottom:20px;">📍</div>
+                <h2 style="margin-bottom:10px;">ĐIỂM DANH GPS</h2>
+                <p style="color:var(--t2);margin-bottom:30px;font-size:0.9rem;">Hệ thống tự động áp giá 22k (Ca sáng) - 24k (Ca tối) và tính tiền phạt đi muộn dựa trên tọa độ quán.</p>
+                <button class="btn btn-g" style="padding:16px 40px;font-size:1.1rem;border-radius:30px;width:100%;" onclick="doCheckIn()"><i class="fas fa-crosshairs"></i> BẤM ĐIỂM DANH VÀO CA</button>
+            </div>
+            <div style="max-width:600px;margin:0 auto;" id="attendance-log"></div>
+        </section>
+
+        <section id="report" class="view">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:15px;">
+                <h2 style="color:var(--p3);margin:0;"><i class="fas fa-chart-bar"></i> Báo cáo & Thống kê</h2>
+                <div style="display:flex;gap:5px;background:rgba(0,0,0,0.5);padding:5px;border-radius:12px;border:1px solid var(--border);">
+                    <button class="btn btn-outline active filter-rep-btn" data-period="day" style="border:none;padding:8px 12px;border-radius:8px;" onclick="filterReport('day')">Hôm nay</button>
+                    <button class="btn btn-outline filter-rep-btn" data-period="week" style="border:none;padding:8px 12px;border-radius:8px;" onclick="filterReport('week')">Tuần Này</button>
+                    <button class="btn btn-outline filter-rep-btn" data-period="month" style="border:none;padding:8px 12px;border-radius:8px;" onclick="filterReport('month')">Tháng Này</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="glass-card" style="border-color:var(--green);margin-bottom:0;">
+                    <div style="color:var(--t2);font-size:0.8rem;font-weight:800;">DOANH THU KỲ NÀY</div>
+                    <div id="rep-total" style="font-size:1.6rem;font-weight:900;margin-top:6px;color:var(--green3);">0đ</div>
+                </div>
+                <div class="glass-card" style="border-color:var(--gold);margin-bottom:0;">
+                    <div style="color:var(--t2);font-size:0.8rem;font-weight:800;">SỐ GIAO DỊCH</div>
+                    <div id="rep-orders" style="font-size:1.6rem;font-weight:900;margin-top:6px;color:var(--gold3);">0</div>
+                </div>
+            </div>
+            <div class="glass-card" style="height:350px;padding:15px;margin-bottom:20px;">
+                <canvas id="chartRevenue"></canvas>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
+                <div class="glass-card">
+                    <h3 style="margin-bottom:15px;color:var(--gold3);"><i class="fas fa-utensils"></i> Đã bán trong ngày</h3>
+                    <div id="rep-items-today" style="max-height:250px;overflow-y:auto;"></div>
+                </div>
+                <div class="glass-card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+                    <i class="fas fa-hdd" style="font-size:40px;color:var(--red);margin-bottom:15px;"></i>
+                    <h3 style="margin-bottom:10px;">Dọn dẹp Dữ liệu</h3>
+                    <p style="color:var(--t2);font-size:0.85rem;margin-bottom:20px;">Để tránh đầy giới hạn Supabase, hãy thường xuyên xuất file Excel và xóa dữ liệu các tháng cũ.</p>
+                    <button class="btn btn-danger" style="width:100%;border-radius:20px;" onclick="confirmExportAndClear()"><i class="fas fa-file-excel"></i> Xuất Excel & Xóa dữ liệu kỳ này</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="settings" class="view">
+            <h2 style="font-size:1.6rem;font-weight:900;margin-bottom:24px;color:var(--gold)"><i class="fas fa-cogs"></i> Cài đặt Hệ thống</h2>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;">
+                <div class="glass-card">
+                    <h3 style="margin-bottom:20px;color:var(--p3);"><i class="fas fa-cubes"></i> Bật/Tắt Mô hình kinh doanh</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:20px;font-size:0.9rem;">
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-bida" class="mod-cb" style="width:18px;height:18px;"> Bida</label>
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-cafe" class="mod-cb" style="width:18px;height:18px;"> Cafe/Ăn</label>
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-karaoke" class="mod-cb" style="width:18px;height:18px;"> Karaoke</label>
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-homestay" class="mod-cb" style="width:18px;height:18px;"> Homestay</label>
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-hotel" class="mod-cb" style="width:18px;height:18px;"> Khách sạn</label>
+                        <label style="display:flex;align-items:center;gap:10px;"><input type="checkbox" id="mod-motel" class="mod-cb" style="width:18px;height:18px;"> Nhà nghỉ</label>
+                    </div>
+                    <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
+                    <h3 style="margin-bottom:20px;color:var(--gold3);"><i class="fas fa-clock"></i> Giá Bida / Karaoke / Phòng</h3>
+                    <label class="field-label">Giá giờ/đêm thường (VNĐ)</label>
+                    <input type="text" id="cfg-rate-normal" class="text-input currency-input" placeholder="VD: 50.000">
+                    <label class="field-label">Giá giờ/đêm Cao điểm (VNĐ)</label>
+                    <input type="text" id="cfg-rate-peak" class="text-input currency-input" placeholder="VD: 60.000">
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1"><label class="field-label">Bắt đầu Cao điểm</label><input type="time" id="cfg-peak-start" class="text-input"></div>
+                        <div style="flex:1"><label class="field-label">Kết thúc Cao điểm</label><input type="time" id="cfg-peak-end" class="text-input"></div>
+                    </div>
+                    <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
+                    <h3 style="margin-bottom:20px;color:var(--green);"><i class="fas fa-qrcode"></i> VietQR & Thanh toán</h3>
+                    <label class="field-label">Webhook URL</label>
+                    <input type="text" id="cfg-webhook" class="text-input" placeholder="https://domain-cua-sep.com/api/webhook">
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1"><label class="field-label">Mã Ngân Hàng (VD: MB)</label><input type="text" id="cfg-bank-id" class="text-input"></div>
+                        <div style="flex:1.5"><label class="field-label">Số Tài Khoản</label><input type="text" id="cfg-bank-acc" class="text-input"></div>
+                    </div>
+                    <label class="field-label">Tên Chủ Tài Khoản</label>
+                    <input type="text" id="cfg-bank-name" class="text-input" placeholder="VIET NAM DONG">
+                    <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
+                    <h3 style="margin-bottom:20px;color:var(--red);"><i class="fas fa-map-marker-alt"></i> Thông tin & Cảnh báo</h3>
+                    <div style="display:flex;gap:10px;">
+                        <div style="flex:1"><label class="field-label">Vĩ độ (Lat)</label><input type="number" id="cfg-lat" class="text-input"></div>
+                        <div style="flex:1"><label class="field-label">Kinh độ (Lng)</label><input type="number" id="cfg-lng" class="text-input"></div>
+                    </div>
+                    <label class="field-label">Số điện thoại liên hệ (In lên Bill)</label>
+                    <input type="text" id="cfg-phone" class="text-input" placeholder="VD: 0987.654.321">
+                    <label class="field-label">Giới hạn bill Cloud (Cảnh báo khi đạt 90%)</label>
+                    <input type="number" id="cfg-limit" class="text-input" placeholder="VD: 5000">
+                    <label class="field-label">Cấu hình In Bill mặc định</label>
+                    <select id="cfg-autoprint" class="select-input">
+                        <option value="false">Tắt (Nhân viên tự tick lúc TT)</option>
+                        <option value="true">Bật (Tích sẵn In Bill)</option>
+                    </select>
+                    <button class="btn btn-p" style="width:100%;border-radius:20px;" onclick="saveBranchSettings()"><i class="fas fa-save"></i> LƯU CẤU HÌNH</button>
+                </div>
+
+                <div class="glass-card" id="admin-users-card" style="height:fit-content;">
+                    <h3 style="margin-bottom:20px;color:var(--green3);"><i class="fas fa-user-plus"></i> Quản trị Nhân sự</h3>
+                    
+                    <div id="master-branch-control" style="background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;margin-bottom:20px;display:none;">
+                        <label class="field-label" style="color:var(--gold)">Quản lý Đa Chi Nhánh (Chỉ Sếp Tổng)</label>
+                        <button class="btn btn-outline" style="width:100%" onclick="addNewBranch()"><i class="fas fa-plus"></i> Tạo Chi nhánh mới</button>
+                        <select id="cfg-branch-select" class="select-input" style="margin-top:10px;margin-bottom:0;" onchange="changeBranch(this.value)"></select>
+                    </div>
+
+                    <label class="field-label">Tên đăng nhập</label>
+                    <input type="text" id="new-u-name" class="text-input" placeholder="VD: thungan_01">
+                    <label class="field-label">Mật khẩu</label>
+                    <input type="password" id="new-u-pass" class="text-input" placeholder="••••••">
+                    <label class="field-label">Cấp Quyền</label>
+                    <select id="new-u-role" class="select-input">
+                        <option value="staff">Nhân viên (Bán hàng)</option>
+                        <option value="admin">Quản lý (Xem báo cáo)</option>
+                        <option value="tenant" id="opt-role-tenant">Chủ Thuê (Quản lý Nhánh)</option>
+                    </select>
+                    <button class="btn btn-g" style="width:100%;border-radius:20px;" onclick="addUser()"><i class="fas fa-user-check"></i> TẠO TÀI KHOẢN</button>
+                    <hr style="border:0;border-top:1px solid var(--border2);margin:20px 0;">
+                    <h4 style="color:var(--t2);margin-bottom:10px;">Danh sách nhân sự nhánh này</h4>
+                    <div id="users-list"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="bill-drawer" id="drawer">
+    <div class="drawer-header">
+        <div>
+            <div style="font-size:10px;color:var(--t3);text-transform:uppercase;font-weight:800;">HÓA ĐƠN BÀN/PHÒNG</div>
+            <h2 id="drawer-title" style="color:var(--p3);margin-top:5px;">...</h2>
+        </div>
+        <div style="display:flex;gap:10px;">
+            <button onclick="deleteCurrentTable()" style="background:rgba(239,68,68,0.2);border:1px solid var(--red);color:var(--red);width:36px;height:36px;border-radius:50%;cursor:pointer;" title="Xóa Bàn"><i class="fas fa-trash"></i></button>
+            <button onclick="closeDrawer()" style="background:rgba(255,255,255,0.1);border:none;color:white;width:36px;height:36px;border-radius:50%;cursor:pointer;" title="Đóng"><i class="fas fa-times"></i></button>
+        </div>
+    </div>
+    <div class="drawer-body">
+        <div id="bida-info" style="display:none;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:12px;padding:15px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:0.9rem;">
+                <span style="color:var(--t2);">Giờ bắt đầu:</span><b id="bida-start-time" style="color:white;">--:--</b>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:1.1rem;">
+                <span style="color:var(--t2);">⏱️ Đã dùng:</span><b id="bida-duration" style="color:var(--gold3);">0 phút</b>
+            </div>
+        </div>
+        <div style="background:rgba(0,0,0,0.4);padding:15px;border-radius:12px;border:1px solid var(--border);margin-bottom:20px;">
+            <div style="font-size:11px;color:var(--t2);font-weight:800;margin-bottom:10px;">GỌI MÓN/DỊCH VỤ NHANH</div>
+            <div id="quick-menu" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--p3);font-weight:800;margin-bottom:10px;">CHI TIẾT ĐÃ GỌI</div>
+        <div id="order-items"></div>
+    </div>
+    <div class="drawer-footer">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+            <span style="font-weight:900;color:var(--t2);">TỔNG TẠM TÍNH</span>
+            <span id="drawer-total" style="font-size:2rem;font-weight:900;color:var(--green3);font-family:'Space Grotesk';text-align:right;line-height:1.2;">0đ</span>
+        </div>
+        <div id="drawer-actions" style="display:flex;gap:10px;"></div>
+        <div id="drawer-transfer" style="margin-top:10px;display:none;">
+            <button class="btn btn-outline" style="width:100%;border-radius:15px;" onclick="transferCurrentTable()"><i class="fas fa-exchange-alt"></i> CHUYỂN BÀN</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast-container"></div>
+<div id="print-area"></div>
+
+<script>
+const sbUrl = localStorage.getItem('GAU_SB_URL') || '';
+const sbKey = localStorage.getItem('GAU_SB_KEY') || '';
+let sbClient = null;
+let currentUser = null;
+let currentBranch = 'S1';
+let currentZoneFilter = 'bida';
+let activeTableId = null;
+let activeTableName = '';
+let activeTableType = '';
+let activeTableStartTime = null; 
+let localCarts = {};
+let chartInstance = null;
+let currentPayContext = null;
+let reportPeriod = 'day';
+let lastLoadedDay = new Date().toLocaleDateString('vi-VN');
+let tickerInterval = null;
+
+let savedConfig = {};
+try { savedConfig = JSON.parse(localStorage.getItem('GAU_CFG')) || {}; } catch(e) {}
+
+let branchConfig = {
+    models: ['bida','cafe'], rateNormal: 50000, ratePeak: 60000, peakStart: '18:00', peakEnd: '23:00',
+    lat: 22.3361, lng: 103.8438, radius: 50, shiftStart: '07:00', lateFine: 1000,
+    autoPrint: false, bankId: 'MB', bankAcc: '', bankName: '', cloudLimit: 5000, phone: '', webhookUrl: '',
+    ...savedConfig
+};
+if (!branchConfig.models || !Array.isArray(branchConfig.models) || branchConfig.models.length === 0) {
+    branchConfig.models = ['bida', 'cafe'];
+}
+
+const MODEL_NAMES = {
+    'bida':     { icon: 'circle',       name: 'Khu Bida',    hasTimer: true },
+    'cafe':     { icon: 'mug-hot',      name: 'Cafe/Ăn',     hasTimer: false },
+    'karaoke':  { icon: 'microphone',   name: 'Karaoke',     hasTimer: true },
+    'homestay': { icon: 'home',         name: 'Homestay',    hasTimer: true },
+    'hotel':    { icon: 'hotel',        name: 'Khách sạn',   hasTimer: true },
+    'motel':    { icon: 'bed',          name: 'Nhà nghỉ',    hasTimer: true }
+};
+
+function showToast(msg, type='success') {
+    const el = document.createElement('div'); el.className = 'toast';
+    const col = type === 'success' ? 'var(--green3)' : type === 'info' ? 'var(--p3)' : 'var(--red)';
+    const ico = type === 'success' ? 'check-circle' : type === 'info' ? 'info-circle' : 'exclamation-triangle';
+    el.style.borderLeft = `4px solid ${col}`;
+    el.innerHTML = `<i class="fas fa-${ico}" style="color:${col}"></i> <span style="color:white">${msg}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+function gModal(title, desc, type, icon='info-circle', iconColor='var(--p3)', options=[]) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('g-modal');
+        document.getElementById('g-modal-icon').innerHTML = `<i class="fas fa-${icon}" style="color:${iconColor}"></i>`;
+        document.getElementById('g-modal-title').innerText = title;
+        document.getElementById('g-modal-desc').innerText = desc;
+        
+        const inp = document.getElementById('g-modal-input');
+        const sel = document.getElementById('g-modal-select');
+        const acts = document.getElementById('g-modal-actions');
+        
+        inp.style.display = 'none'; sel.style.display = 'none';
+
+        if (type === 'prompt') {
+            inp.style.display = 'block'; inp.value = '';
+            setTimeout(() => inp.focus(), 100);
+            acts.innerHTML = `<button class="btn btn-outline" id="g-btn-cancel">Hủy</button><button class="btn btn-p" id="g-btn-ok">Xác nhận</button>`;
+        } else if (type === 'select') {
+            sel.style.display = 'block';
+            sel.innerHTML = options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+            acts.innerHTML = `<button class="btn btn-outline" id="g-btn-cancel">Hủy</button><button class="btn btn-p" id="g-btn-ok">Xác nhận</button>`;
+        } else {
+            acts.innerHTML = `<button class="btn btn-outline" id="g-btn-cancel">Hủy</button><button class="btn btn-danger" id="g-btn-ok">Đồng ý</button>`;
+        }
+        
+        overlay.classList.add('active');
+        const cleanup = () => overlay.classList.remove('active');
+        
+        document.getElementById('g-btn-cancel').onclick = () => { cleanup(); resolve(null); };
+        document.getElementById('g-btn-ok').onclick = () => { 
+            cleanup(); 
+            if(type === 'prompt') resolve(inp.value.trim());
+            else if (type === 'select') resolve(sel.value);
+            else resolve(true); 
+        };
+        inp.onkeydown = (e) => { if(e.key === 'Enter') { cleanup(); resolve(inp.value.trim()); } };
+    });
+}
+
+function bindCurrencyInputs() {
+    document.querySelectorAll('.currency-input').forEach(input => {
+        input.addEventListener('input', function() {
+            let val = this.value.replace(/\D/g, '');
+            this.value = val ? parseInt(val, 10).toLocaleString('vi-VN').replace(/,/g, '.') : '';
+        });
+    });
+}
+
+function bindNavEvents() {
+    document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const viewId = btn.getAttribute('data-view');
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            if(viewId === 'report') filterReport('day');
+        });
+    });
+}
+
+function saveCartsToSession() {
+    try { sessionStorage.setItem('GAU_CARTS', JSON.stringify(localCarts)); } catch(e) {}
+}
+
+function loadCartsFromSession() {
+    try { localCarts = JSON.parse(sessionStorage.getItem('GAU_CARTS')) || {}; } catch(e) { localCarts = {}; }
+}
+
+function goToReport() {
+    const repBtn = document.querySelector('.nav-btn[data-view="report"]');
+    if(repBtn) repBtn.click();
+}
+
+window.onload = () => {
+    bindCurrencyInputs();
+    bindNavEvents(); 
+    if (!sbUrl || !sbKey) {
+        document.getElementById('setup-screen').style.display = 'flex';
+    } else {
+        sbClient = window.supabase.createClient(sbUrl, sbKey);
+        document.getElementById('login-screen').style.display = 'flex';
+    }
+};
+
+async function handleSetup() {
+    const url = document.getElementById('setup-url').value.trim();
+    const key = document.getElementById('setup-key').value.trim();
+    const user = document.getElementById('setup-user').value.trim();
+    const pass = document.getElementById('setup-pass').value.trim();
+    if (!url || !key || !user || !pass) return showToast("Điền đủ thông tin!", "error");
+    try {
+        const tempClient = window.supabase.createClient(url, key);
+        await tempClient.from('branches').upsert([{ id: 'S1', name: 'Tiệm Nhà Gấu' }]);
+        await tempClient.from('users').insert([{ username: user, password: pass, role: 'master', branch_id: 'S1' }]);
+        localStorage.setItem('GAU_SB_URL', url); localStorage.setItem('GAU_SB_KEY', key);
+        showToast("Khởi tạo Cloud thành công!", "success");
+        setTimeout(() => window.location.reload(), 1500);
+    } catch (err) { showToast("Lỗi kết nối Cloud!", "error"); }
+}
+
+function resetSetup() { localStorage.clear(); window.location.reload(); }
+
+async function handleLogin() {
+    const user = document.getElementById('login-user').value.trim();
+    const pass = document.getElementById('login-pass').value.trim();
+    if (!user || !pass) return showToast("Nhập đủ tài khoản!", "error");
+
+    try {
+        const { data, error } = await sbClient.from('users').select('*, branches(name)').eq('username', user).single();
+        if (error || !data || data.password !== pass) {
+            return showToast("Sai tài khoản/mật khẩu!", "error");
+        }
+
+        currentUser = data;
+        currentBranch = currentUser.branch_id;
+        document.getElementById('display-branch-name').innerText = currentUser.branches?.name || 'Chi Nhánh';
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'flex';
+
+        const rName = { master: 'Sếp Tổng', tenant: 'Chủ Thuê', admin: 'Quản lý', staff: 'Nhân viên' }[currentUser.role];
+        document.getElementById('header-user-name').innerHTML = `${currentUser.username} <span style="font-size:0.7rem;background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:10px;margin-left:5px;">${rName}</span>`;
+
+        if (['master','admin','tenant'].includes(currentUser.role)) document.getElementById('tab-report').style.display = 'flex';
+        
+        if (['master','tenant'].includes(currentUser.role)) {
+            document.getElementById('tab-settings').style.display = 'flex';
+            if (currentUser.role === 'master') document.getElementById('btn-edit-branch').style.display = 'block';
+            loadSettings();
+        } else { 
+            document.getElementById('admin-users-card').style.display = 'none'; 
+        }
+
+        showToast("Đăng nhập thành công!", "success");
+        initApp();
+    } catch(e) {
+        showToast("Lỗi khi đăng nhập!", "error"); console.error(e);
+    }
+}
+
+function initApp() {
+    loadCartsFromSession();
+    renderZoneTabs(); loadTables(); loadMenu(); loadInventory();
+    if (currentUser.role !== 'staff') filterReport('day');
+    checkCloudLimit();
+    if(tickerInterval) clearInterval(tickerInterval); 
+    tickerInterval = setInterval(ticker, 60000);
+}
+
+function ticker() {
+    const nowStr = new Date().toLocaleDateString('vi-VN');
+    if (nowStr !== lastLoadedDay) {
+        lastLoadedDay = nowStr;
+        if (currentUser.role !== 'staff') filterReport(reportPeriod);
+        showToast("Đã sang ngày mới, làm mới dữ liệu!", "info");
+    }
+    updateTableTimers();
+    checkCloudLimit();
+}
+
+async function checkCloudLimit() {
+    try {
+        const limit = branchConfig.cloudLimit || 5000;
+        const { count, error } = await sbClient.from('orders').select('*', { count: 'exact', head: true });
+        if(error) return;
+        const pct = Math.round((count / limit) * 100);
+        if (count >= limit * 0.9) {
+            const banner = document.getElementById('cloud-warning-banner');
+            document.getElementById('cloud-warning-text').innerText = `⚠️ RADAR CLOUD: Đã dùng ${count.toLocaleString()}/${limit.toLocaleString()} bill (${pct}%). Hãy xuất Excel & dọn dẹp ngay!`;
+            banner.style.display = 'flex';
+        } else {
+            document.getElementById('cloud-warning-banner').style.display = 'none';
+        }
+    } catch(e) {}
+}
+
+function renderZoneTabs() {
+    const c = document.getElementById('dynamic-zone-tabs');
+    c.innerHTML = branchConfig.models.map((mod, i) => {
+        const m = MODEL_NAMES[mod];
+        if(!m) return '';
+        if (i === 0) currentZoneFilter = mod;
+        return `<button class="zone-tab ${i===0?'active':''}" onclick="switchZone('${mod}',this)"><i class="fas fa-${m.icon}"></i> ${m.name}</button>`;
+    }).join('');
+}
+
+function switchZone(zone, btn) {
+    currentZoneFilter = zone;
+    document.querySelectorAll('.zone-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); loadTables();
+}
+
+async function loadTables() {
+    try {
+        const { data, error } = await sbClient.from('zones_tables').select('*').eq('branch_id', currentBranch);
+        if (error) throw error; 
+        if (!data) return;
+        
+        const container = document.getElementById('tables-container');
+        container.innerHTML = data.filter(t => t.type === currentZoneFilter).map(t => {
+            const isBusy = t.status === 'đang dùng';
+            const m = MODEL_NAMES[t.type];
+            return `<div class="table-card ${isBusy?'busy':''}" onclick="openTable('${t.id}','${t.type}','${t.status}','${t.table_name.replace(/'/g,"\\'")}')"><div class="tbl-icon"><i class="fas fa-${m.icon}"></i></div><div class="tbl-name">${t.table_name}</div><div class="tbl-status">${isBusy?'⚡ Đang dùng':'— Trống —'}</div><div class="tbl-time" id="timer-tbl-${t.id}"></div></div>`;
+        }).join('');
+        updateTableTimers();
+    } catch(e) { showToast("Lỗi tải danh sách bàn!", "error"); }
+}
+
+async function updateTableTimers() {
+    try {
+        const { data, error } = await sbClient.from('billiards_sessions').select('table_id,start_time').is('end_time', null);
+        if(error) throw error;
+        if (!data) return;
+        data.forEach(s => {
+            const diff = Math.floor((new Date() - new Date(s.start_time)) / 60000);
+            const el = document.getElementById(`timer-tbl-${s.table_id}`);
+            if (el) el.innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
+            
+            if (activeTableId === s.table_id && document.getElementById('drawer').classList.contains('open')) {
+                activeTableStartTime = s.start_time;
+                const durEl = document.getElementById('bida-duration');
+                if(durEl) durEl.innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
+                renderCart(); 
+            }
+        });
+    } catch(e) {}
+}
+
+async function addTable() {
+    const name = await gModal("Thêm Bàn/Phòng", "Nhập tên:", "prompt", "layer-group", "var(--p3)");
+    if (name) {
+        const { error } = await sbClient.from('zones_tables').insert([{ branch_id: currentBranch, table_name: name, type: currentZoneFilter }]);
+        if(error) showToast("Lỗi khi thêm bàn!", "error");
+        else { showToast("Đã thêm thành công", "success"); loadTables(); }
+    }
+}
+
+async function deleteCurrentTable() {
+    if (!activeTableId) return;
+    const ans = await gModal("Xóa bàn", `Chắc chắn xóa bàn "${activeTableName}"?`, "confirm", "trash", "var(--red)");
+    if (!ans) return;
+
+    showToast("Đang dọn dữ liệu liên quan...", "info");
+    try {
+        await sbClient.from('billiards_sessions').delete().eq('table_id', activeTableId);
+        const { data: orders } = await sbClient.from('orders').select('id').eq('table_id', activeTableId);
+        if (orders && orders.length > 0) {
+            const orderIds = orders.map(o => o.id);
+            await sbClient.from('order_details').delete().in('order_id', orderIds);
+            await sbClient.from('orders').delete().eq('table_id', activeTableId);
+        }
+        await sbClient.from('zones_tables').delete().eq('id', activeTableId);
+        showToast("Đã xóa bàn!", "success");
+        delete localCarts[activeTableId]; saveCartsToSession();
+        closeDrawer(); loadTables();
+    } catch(e) { showToast("Lỗi khi xóa bàn.", "error"); }
+}
+
+async function transferCurrentTable() {
+    try {
+        const { data, error } = await sbClient.from('zones_tables').select('id, table_name').eq('branch_id', currentBranch).eq('type', activeTableType).eq('status', 'trống');
+        if (error) throw error;
+        if (!data || data.length === 0) return showToast("Không có bàn trống cùng khu vực!", "error");
+
+        const options = data.map(t => ({ value: t.id, label: t.table_name }));
+        const targetId = await gModal("Chuyển bàn", `Chuyển bàn "${activeTableName}" tới:`, "select", "exchange-alt", "var(--p3)", options);
+        if (!targetId) return;
+
+        if (MODEL_NAMES[activeTableType].hasTimer) {
+            const { data: session } = await sbClient.from('billiards_sessions').select('id').eq('table_id', activeTableId).is('end_time', null).single();
+            if (session) await sbClient.from('billiards_sessions').update({ table_id: targetId }).eq('id', session.id);
+        }
+        
+        localCarts[targetId] = localCarts[activeTableId] || [];
+        delete localCarts[activeTableId]; saveCartsToSession();
+
+        await sbClient.from('zones_tables').update({ status: 'trống' }).eq('id', activeTableId);
+        await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', targetId);
+        
+        showToast("Đã chuyển bàn thành công!", "success");
+        closeDrawer(); loadTables();
+    } catch(e) { showToast("Lỗi chuyển bàn!", "error"); }
+}
+
+async function renameCurrentZone() {
+    showToast("Tính năng sửa tên Zone đang update!", "info");
+}
+
+async function openTable(id, type, status, name) {
+    activeTableId = id; activeTableName = name; activeTableType = type;
+    document.getElementById('drawer-title').innerText = name;
+    const acts = document.getElementById('drawer-actions');
+
+    if (!localCarts[id]) localCarts[id] = []; 
+
+    if (status === 'trống') {
+        if (!MODEL_NAMES[type].hasTimer) {
+            await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', id);
+            saveCartsToSession();
+            status = 'đang dùng'; loadTables();
+        } else {
+            document.getElementById('drawer').classList.add('open');
+            document.getElementById('drawer-overlay').classList.add('open');
+            document.getElementById('bida-info').style.display = 'none';
+            document.getElementById('drawer-transfer').style.display = 'none';
+            acts.innerHTML = `<button class="btn btn-p" style="width:100%;border-radius:20px;padding:16px;font-size:1.1rem;" onclick="startTable('${id}','${type}')"><i class="fas fa-play"></i> BẮT ĐẦU MỞ</button>`;
+            activeTableStartTime = null;
+            renderQuickMenu(); renderCart(); return;
+        }
+    }
+
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('drawer-transfer').style.display = 'block';
+
+    acts.innerHTML = `<button class="btn btn-g" style="width:100%;border-radius:20px;padding:16px;font-size:1.1rem;" onclick="openPaymentModal('${id}','${type}')">THANH TOÁN</button>`;
+
+    if (MODEL_NAMES[type].hasTimer) {
+        document.getElementById('bida-info').style.display = 'block';
+        const { data } = await sbClient.from('billiards_sessions').select('start_time').eq('table_id', id).is('end_time', null).single();
+        if (data) {
+            activeTableStartTime = data.start_time; 
+            const st = new Date(data.start_time);
+            document.getElementById('bida-start-time').innerText = st.toLocaleTimeString('vi-VN');
+            const diff = Math.floor((new Date() - st) / 60000);
+            document.getElementById('bida-duration').innerText = `${Math.floor(diff/60)}h ${diff%60}p`;
+        }
+    } else { 
+        document.getElementById('bida-info').style.display = 'none'; 
+        activeTableStartTime = null;
+    }
+
+    renderQuickMenu(); renderCart();
+}
+
+function closeDrawer() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+    activeTableId = null;
+    activeTableStartTime = null;
+}
+
+async function startTable(id, type) {
+    await sbClient.from('zones_tables').update({ status: 'đang dùng' }).eq('id', id);
+    if (MODEL_NAMES[type].hasTimer) await sbClient.from('billiards_sessions').insert([{ table_id: id, start_time: new Date().toISOString() }]);
+    if (!localCarts[id]) localCarts[id] = [];
+    saveCartsToSession();
+    showToast("Đã mở thành công!", "success"); closeDrawer(); loadTables();
+}
+
+async function renderQuickMenu() {
+    try {
+        const { data, error } = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
+        if(error) throw error;
+        if (data) {
+            document.getElementById('quick-menu').innerHTML = data.map(m => `
+                <div class="quick-item" onclick="addToCart('${m.id}','${m.item_name.replace(/'/g,"\\'")}',${m.price})">
+                    <div><b style="font-size:0.9rem">${m.item_name}</b><div style="color:var(--p3);font-size:0.8rem">${m.price.toLocaleString()}đ</div></div>
+                    <div style="background:var(--p);width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:bold;color:white">+</div>
+                </div>
+            `).join('');
+        }
+    } catch(e) { console.error(e); }
+}
+
+function addToCart(id, name, price) {
+    if (!localCarts[activeTableId]) localCarts[activeTableId] = [];
+    let cart = localCarts[activeTableId];
+    let item = cart.find(i => i.id === id);
+    if (item) item.qty++; else cart.push({ id, name, price, qty: 1 });
+    saveCartsToSession();
+    renderCart();
+}
+
+function updateQty(id, delta) {
+    if (!localCarts[activeTableId]) return;
+    let cart = localCarts[activeTableId];
+    let item = cart.find(i => i.id === id);
+    if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) localCarts[activeTableId] = cart.filter(i => i.id !== id);
+        saveCartsToSession(); renderCart();
+    }
+}
+
+function renderCart() {
+    let cart = localCarts[activeTableId] || [];
+    let total = 0;
+    
+    document.getElementById('order-items').innerHTML = cart.map(i => {
+        let itemTotal = i.price * i.qty; total += itemTotal;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)">
+            <div><b style="font-size:1rem">${i.name}</b><div style="color:var(--p3);font-size:0.85rem">${i.price.toLocaleString()}đ</div></div>
+            <div style="display:flex;align-items:center;gap:12px">
+                <div class="qty-ctrl">
+                    <button class="qty-btn" onclick="updateQty('${i.id}',-1)">-</button>
+                    <span style="font-weight:900;width:20px;text-align:center">${i.qty}</span>
+                    <button class="qty-btn" onclick="updateQty('${i.id}',1)">+</button>
+                </div>
+                <b style="color:white;min-width:60px;text-align:right">${itemTotal.toLocaleString()}đ</b>
+            </div>
+        </div>`;
+    }).join('');
+
+    let timeFee = 0;
+    if (MODEL_NAMES[activeTableType]?.hasTimer && activeTableStartTime) {
+        timeFee = calcTimeFee(activeTableStartTime, new Date().toISOString());
+    }
+    
+    let finalTotal = total + timeFee;
+    let suffix = MODEL_NAMES[activeTableType]?.hasTimer ? ` <br><span style="font-size:1rem; color:var(--t2); font-weight:normal;">(Gồm ${timeFee.toLocaleString()}đ tiền giờ)</span>` : '';
+    
+    document.getElementById('drawer-total').innerHTML = finalTotal.toLocaleString() + 'đ' + suffix;
+}
+
+function calcTimeFee(startTimeStr, endTimeStr) {
+    let start = new Date(startTimeStr); let end = new Date(endTimeStr);
+    let [psH, psM] = branchConfig.peakStart.split(':').map(Number);
+    let [peH, peM] = branchConfig.peakEnd.split(':').map(Number);
+    let peakS = new Date(start); peakS.setHours(psH, psM, 0);
+    let peakE = new Date(start); peakE.setHours(peH, peM, 0);
+    if (peakE < peakS) peakE.setDate(peakE.getDate() + 1);
+    let totalMins = Math.floor((end - start) / 60000); let peakMins = 0;
+    if (start < peakE && end > peakS) {
+        let os = start > peakS ? start : peakS;
+        let oe = end < peakE ? end : peakE;
+        peakMins = Math.max(0, Math.floor((oe - os) / 60000));
+    }
+    return Math.round(((totalMins - peakMins) * (branchConfig.rateNormal / 60)) + (peakMins * (branchConfig.ratePeak / 60)));
+}
+
+async function openPaymentModal(tableId, type) {
+    let baseAmount = 0; let timeFee = 0; let cart = localCarts[tableId] || [];
+
+    if (MODEL_NAMES[type].hasTimer) {
+        const { data: session } = await sbClient.from('billiards_sessions').select('*').eq('table_id', tableId).is('end_time', null).single();
+        if (session) { timeFee = calcTimeFee(session.start_time, new Date().toISOString()); baseAmount += timeFee; }
+    }
+    cart.forEach(i => baseAmount += i.price * i.qty);
+
+    currentPayContext = { tableId, type, baseAmount, totalAmount: baseAmount, timeFee, cart, method: null, discountPct: 0, discountAmt: 0 };
+
+    document.getElementById('pay-table-name').innerText = activeTableName;
+    document.getElementById('pay-amount-display').innerText = baseAmount.toLocaleString() + 'đ';
+    document.getElementById('pay-original-display').innerText = '';
+    document.getElementById('discount-pct').value = 0;
+    document.getElementById('discount-amount-show').innerText = '';
+    document.getElementById('cb-print-bill').checked = branchConfig.autoPrint;
+    document.getElementById('btn-pay-cash').classList.remove('active');
+    document.getElementById('btn-pay-qr').classList.remove('active');
+    document.getElementById('qr-section').style.display = 'none';
+    document.getElementById('cash-section').style.display = 'none';
+    document.getElementById('payment-modal').classList.add('active');
+}
+
+function applyDiscount() {
+    if (!currentPayContext) return;
+    const pct = Math.min(100, Math.max(0, parseFloat(document.getElementById('discount-pct').value) || 0));
+    const discountAmt = Math.round(currentPayContext.baseAmount * pct / 100);
+    const finalAmt = currentPayContext.baseAmount - discountAmt;
+    currentPayContext.totalAmount = finalAmt;
+    currentPayContext.discountPct = pct;
+    currentPayContext.discountAmt = discountAmt;
+
+    if (pct > 0) {
+        document.getElementById('pay-original-display').innerText = `Gốc: ${currentPayContext.baseAmount.toLocaleString()}đ`;
+        document.getElementById('discount-amount-show').innerText = `✂️ Giảm ${pct}%: -${discountAmt.toLocaleString()}đ`;
+        document.getElementById('pay-amount-display').innerText = finalAmt.toLocaleString() + 'đ';
+    } else {
+        document.getElementById('pay-original-display').innerText = '';
+        document.getElementById('discount-amount-show').innerText = '';
+        document.getElementById('pay-amount-display').innerText = currentPayContext.baseAmount.toLocaleString() + 'đ';
+    }
+
+    if (currentPayContext.method === 'qr') selectPayMethod('qr');
+}
+
+function closePaymentModal() { document.getElementById('payment-modal').classList.remove('active'); }
+
+function selectPayMethod(method) {
+    currentPayContext.method = method;
+    document.getElementById('btn-pay-cash').classList.remove('active');
+    document.getElementById('btn-pay-qr').classList.remove('active');
+    document.getElementById('qr-section').style.display = 'none';
+    document.getElementById('cash-section').style.display = 'none';
+
+    if (method === 'qr') {
+        document.getElementById('btn-pay-qr').classList.add('active');
+        const amt = currentPayContext.totalAmount;
+        const qrUrl = `https://img.vietqr.io/image/${branchConfig.bankId}-${branchConfig.bankAcc}-compact2.png?amount=${amt}&addInfo=${encodeURIComponent("TT BAN " + activeTableName)}&accountName=${encodeURIComponent(branchConfig.bankName)}`;
+        document.getElementById('vietqr-img').src = qrUrl;
+        document.getElementById('qr-section').style.display = 'block';
+    } else {
+        document.getElementById('btn-pay-cash').classList.add('active');
+        document.getElementById('cash-section').style.display = 'block';
+    }
+}
+
+function generatePrintBill(tableName, cart, timeFee, totalAmount, discountPct, discountAmt, baseAmount) {
+    const dateStr = new Date().toLocaleString('vi-VN');
+    const phoneStr = branchConfig.phone || '(Chưa cập nhật)';
+    const branchName = document.getElementById('display-branch-name').innerText;
+
+    let html = `
+        <div style="text-align:center;margin-bottom:15px;padding-top:10px;">
+            <h2 style="margin:0;font-size:24px;font-weight:bold;text-transform:uppercase;">${branchName}</h2>
+            <p style="margin:5px 0 0;font-size:15px;">SĐT: ${phoneStr}</p>
+            <h3 style="margin:15px 0 5px;font-size:18px;border-top:1px dashed #000;padding-top:10px;">HÓA ĐƠN THANH TOÁN</h3>
+            <p style="margin:3px 0;font-size:14px;">Bàn/Phòng: <b>${tableName}</b></p>
+            <p style="margin:3px 0;font-size:14px;">Ngày: ${dateStr}</p>
+        </div>
+        <hr style="border-top:1px dashed black;margin:10px 0;">
+        <table style="width:100%;text-align:left;font-size:15px;color:black;border-collapse:collapse;">
+            <tr>
+                <th style="padding-bottom:8px;border-bottom:1px solid #000;">Món/Dịch vụ</th>
+                <th style="padding-bottom:8px;border-bottom:1px solid #000;text-align:center;">SL</th>
+                <th style="text-align:right;padding-bottom:8px;border-bottom:1px solid #000;">T.Tiền</th>
+            </tr>`;
+    cart.forEach(item => {
+        html += `<tr>
+            <td style="padding:8px 0;border-bottom:1px dotted #ccc;">${item.name}</td>
+            <td style="text-align:center;border-bottom:1px dotted #ccc;">${item.qty}</td>
+            <td style="text-align:right;border-bottom:1px dotted #ccc;">${(item.price * item.qty).toLocaleString()}đ</td>
+        </tr>`;
+    });
+    html += `</table>`;
+    if (timeFee > 0) {
+        html += `<div style="display:flex;justify-content:space-between;padding:10px 0;font-size:15px;">
+            <span>Tiền giờ/Dịch vụ:</span><span>${timeFee.toLocaleString()}đ</span>
+        </div>`;
+    }
+    if (discountPct > 0) {
+        html += `<hr style="border-top:1px dashed black;margin:5px 0;">
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;">
+            <span>Tổng trước giảm:</span><span>${baseAmount.toLocaleString()}đ</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:14px;color:#dc2626;font-weight:bold;">
+            <span>✂️ Giảm giá (${discountPct}%):</span><span>-${discountAmt.toLocaleString()}đ</span>
+        </div>`;
+    }
+    html += `<hr style="border-top:1px dashed black;margin:10px 0;">
+    <div style="display:flex;justify-content:space-between;font-size:20px;font-weight:bold;padding:5px 0;">
+        <span>TỔNG CỘNG:</span><span>${totalAmount.toLocaleString()}đ</span>
+    </div>`;
+    html += `<div style="text-align:center;margin-top:25px;font-size:15px;font-style:italic;">Cảm ơn quý khách và hẹn gặp lại! 🐻</div>`;
+
+    document.getElementById('print-area').innerHTML = html;
+}
+
+async function processCheckout() {
+    const { tableId, type, totalAmount, timeFee, cart, discountPct, discountAmt, baseAmount } = currentPayContext;
+    const doPrint = document.getElementById('cb-print-bill').checked;
+
+    try {
+        if (MODEL_NAMES[type].hasTimer) {
+            const { data: session } = await sbClient.from('billiards_sessions').select('*').eq('table_id', tableId).is('end_time', null).single();
+            if (session) await sbClient.from('billiards_sessions').update({ end_time: new Date().toISOString(), total_price: timeFee }).eq('id', session.id);
+        }
+
+        if (totalAmount > 0 || cart.length > 0) {
+            const { data: ord, error: ordErr } = await sbClient.from('orders').insert([{
+                table_id: tableId, user_id: currentUser.id,
+                total_amount: totalAmount, discount_pct: discountPct || 0, discount_amt: discountAmt || 0
+            }]).select();
+            
+            if (ord && cart.length > 0) {
+                for (let item of cart) {
+                    await sbClient.from('order_details').insert([{ order_id: ord[0].id, menu_id: item.id, quantity: item.qty }]);
+                    const { data: recipes } = await sbClient.from('recipes').select('*').eq('menu_id', item.id);
+                    if (recipes && recipes.length > 0) {
+                        for (let r of recipes) {
+                            const { data: inv } = await sbClient.from('inventory').select('quantity').eq('id', r.ingredient_id).single();
+                            if (inv) await sbClient.from('inventory').update({ quantity: inv.quantity - (r.quantity_required * item.qty) }).eq('id', r.ingredient_id);
+                        }
+                    }
+                }
+            }
+        }
+
+        await sbClient.from('zones_tables').update({ status: 'trống' }).eq('id', tableId);
+
+        if (doPrint) generatePrintBill(activeTableName, cart, timeFee, totalAmount, discountPct, discountAmt, baseAmount);
+
+        delete localCarts[tableId]; saveCartsToSession();
+        closePaymentModal(); closeDrawer(); loadTables(); loadInventory();
+        if (currentUser.role !== 'staff') filterReport(reportPeriod);
+
+        showToast("Thanh toán hoàn tất!", "success");
+        confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+
+        if (doPrint) setTimeout(() => window.print(), 500);
+
+        checkCloudLimit();
+    } catch(e) { showToast("Lỗi thanh toán!", "error"); console.error(e); }
+}
+
+async function filterReport(period) {
+    reportPeriod = period;
+    document.querySelectorAll('.filter-rep-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.filter-rep-btn[data-period="${period}"]`).classList.add('active');
+
+    const now = new Date(); let startDate, prevStartDate, prevEndDate;
+    if (period === 'day') {
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        prevStartDate = new Date(startDate); prevStartDate.setDate(prevStartDate.getDate() - 1);
+        prevEndDate = new Date(startDate);
+    } else if (period === 'week') {
+        startDate = new Date(now); startDate.setDate(now.getDate() - 7);
+        prevStartDate = new Date(startDate); prevStartDate.setDate(prevStartDate.getDate() - 7);
+        prevEndDate = startDate;
+    } else {
+        startDate = new Date(now); startDate.setDate(now.getDate() - 30);
+        prevStartDate = new Date(startDate); prevStartDate.setDate(prevStartDate.getDate() - 30);
+        prevEndDate = startDate;
+    }
+
+    try {
+        const { data: currentOrders } = await sbClient.from('orders').select('*').gte('created_at', startDate.toISOString());
+        const { data: prevOrders } = await sbClient.from('orders').select('*').gte('created_at', prevStartDate.toISOString()).lt('created_at', prevEndDate.toISOString());
+
+        let curTotal = 0; currentOrders?.forEach(o => curTotal += Number(o.total_amount));
+        let prevTotal = 0; prevOrders?.forEach(o => prevTotal += Number(o.total_amount));
+
+        document.getElementById('rep-total').innerText = curTotal.toLocaleString() + 'đ';
+        document.getElementById('rep-orders').innerText = currentOrders?.length || 0;
+
+        const ctx = document.getElementById('chartRevenue').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: [period==='day'?'Hôm qua vs Hôm nay':period==='week'?'Tuần trước vs Tuần này':'Tháng trước vs Tháng này'],
+                datasets: [
+                    { label: 'Kỳ trước', data: [prevTotal], backgroundColor: 'rgba(156,163,175,0.5)', borderRadius: 8 },
+                    { label: 'Kỳ này', data: [curTotal], backgroundColor: 'rgba(16,185,129,0.8)', borderRadius: 8 }
+                ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' } }, x: { grid: { display: false } } }, plugins: { legend: { labels: { color: 'white' } } } }
+        });
+
+        if (period === 'day') await renderItemsSoldToday(startDate.toISOString());
+        else document.getElementById('rep-items-today').innerHTML = '<div style="color:var(--t3);padding:10px;">(Chỉ hiển thị chi tiết món khi chọn "Hôm nay")</div>';
+    } catch(e) {}
+}
+
+async function renderItemsSoldToday(isoDateString) {
+    try {
+        const { data: orders } = await sbClient.from('orders').select('id').gte('created_at', isoDateString);
+        if (!orders || orders.length === 0) {
+            document.getElementById('rep-items-today').innerHTML = '<div style="color:var(--t2);">Hôm nay chưa có giao dịch.</div>';
+            return;
+        }
+        const orderIds = orders.map(o => o.id);
+        const { data: details } = await sbClient.from('order_details').select('quantity,menu(item_name)').in('order_id', orderIds);
+        let itemMap = {};
+        details?.forEach(d => {
+            const name = d.menu?.item_name || 'Món đã xóa';
+            itemMap[name] = (itemMap[name] || 0) + d.quantity;
+        });
+        const html = Object.keys(itemMap).sort((a,b) => itemMap[b]-itemMap[a]).map(name => `
+            <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);">
+                <span>${name}</span><b style="color:var(--gold3)">${itemMap[name]}</b>
+            </div>`).join('');
+        document.getElementById('rep-items-today').innerHTML = html || '<div style="color:var(--t2);">Trống.</div>';
+    } catch(e) {}
+}
+
+async function confirmExportAndClear() {
+    const ans = await gModal("Cảnh báo Xóa Dữ liệu", `Tải Excel và Xóa dữ liệu của kỳ [${reportPeriod}] trên Cloud?\nHành động này không thể hoàn tác!`, "confirm", "exclamation-triangle", "var(--red)");
+    if (!ans) return;
+
+    showToast("Đang chuẩn bị file Excel...", "info");
+    try {
+        const now = new Date(); let startDate;
+        if (reportPeriod === 'day') startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        else if (reportPeriod === 'week') { startDate = new Date(now); startDate.setDate(now.getDate() - 7); }
+        else { startDate = new Date(now); startDate.setDate(now.getDate() - 30); }
+
+        const { data: orders } = await sbClient.from('orders').select('*, order_details(quantity, menu(item_name, price))').gte('created_at', startDate.toISOString());
+        if (!orders || orders.length === 0) return showToast("Không có dữ liệu để xuất!", "error");
+
+        const excelMatrix = [
+            ["BÁO CÁO DOANH THU & BACKUP DỮ LIỆU - GẤU POS V65"],
+            ["Chi nhánh:", document.getElementById('display-branch-name').innerText],
+            ["Ngày xuất:", new Date().toLocaleString('vi-VN')],
+            [],
+            ["Mã Đơn", "Ngày Giờ", "Món", "Số Lượng", "Đơn Giá", "Thành Tiền Món", "Giảm Giá (%)", "Số Tiền Giảm", "Tổng Bill"]
+        ];
+
+        orders.forEach(o => {
+            let firstRow = true;
+            if (o.order_details && o.order_details.length > 0) {
+                o.order_details.forEach(detail => {
+                    excelMatrix.push([
+                        firstRow ? o.id : '',
+                        firstRow ? new Date(o.created_at).toLocaleString('vi-VN') : '',
+                        detail.menu?.item_name || 'Món đã xóa',
+                        detail.quantity,
+                        detail.menu?.price || 0,
+                        (detail.menu?.price || 0) * detail.quantity,
+                        firstRow ? (o.discount_pct || 0) : '',
+                        firstRow ? (o.discount_amt || 0) : '',
+                        firstRow ? o.total_amount : ''
+                    ]);
+                    firstRow = false;
+                });
+            } else {
+                excelMatrix.push([o.id, new Date(o.created_at).toLocaleString('vi-VN'), 'Chỉ tính giờ', '-', '-', '-', o.discount_pct || 0, o.discount_amt || 0, o.total_amount]);
+            }
+        });
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(excelMatrix);
+        ws['!cols'] = [{wch:10},{wch:20},{wch:25},{wch:10},{wch:15},{wch:15},{wch:12},{wch:15},{wch:15}];
+        XLSX.utils.book_append_sheet(wb, ws, 'DoanhThu');
+        XLSX.writeFile(wb, `GauPOS_Backup_${new Date().getTime()}.xlsx`);
+
+        showToast("Đã tải xong Excel! Đang dọn Cloud...", "info");
+        await sbClient.from('orders').delete().gte('created_at', startDate.toISOString());
+        showToast("Dọn dẹp Cloud thành công! Đang làm mới...", "success");
+        setTimeout(() => window.location.reload(), 1500);
+    } catch(e) { showToast("Lỗi khi xuất/xóa Database.", "error"); console.error(e); }
+}
+
+function doCheckIn() {
+    if (!navigator.geolocation) return showToast("Bật GPS để điểm danh!", "error");
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+        try {
+            const { latitude, longitude } = pos.coords;
+            const now = new Date(); const hour = now.getHours();
+            const rate = (hour >= 18 || hour < 6) ? 24000 : 22000;
+            let fine = 0;
+            if (branchConfig.shiftStart) {
+                const [h, m] = branchConfig.shiftStart.split(':');
+                const shiftTime = new Date(); shiftTime.setHours(h, m, 0);
+                const lateMins = Math.floor((now - shiftTime) / 60000);
+                if (lateMins > 0) fine = lateMins * branchConfig.lateFine;
+            }
+            await sbClient.from('timekeeping').insert([{ user_id: currentUser.id, shift_date: now.toISOString().split('T')[0], check_in: now.toISOString(), hourly_rate: rate, lat: latitude, lng: longitude }]);
+            document.getElementById('attendance-log').innerHTML = `<div style="background:rgba(16,185,129,0.1);border:1px solid var(--green);padding:15px;border-radius:12px;color:var(--green3);"><i class="fas fa-check-circle"></i> Điểm danh vào ca thành công! Lương: <b>${rate.toLocaleString()}đ/h</b>. ${fine > 0 ? `<br><span style="color:var(--red)">Đi muộn, bị phạt: ${fine.toLocaleString()}đ</span>` : ''}</div>`;
+            showToast("Điểm danh GPS thành công!", "success");
+            confetti({ particleCount: 150, spread: 80 });
+        } catch(e) { showToast("Lỗi điểm danh!", "error"); }
+    }, () => showToast("Vui lòng cấp quyền vị trí!", "error"), { enableHighAccuracy: true });
+}
+
+async function loadMenu() {
+    try {
+        const { data, error } = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
+        if(error) throw error;
+        if (data) {
+            document.getElementById('menu-list').innerHTML = data.length === 0
+                ? `<div style="color:var(--t2);padding:20px;text-align:center;">Chưa có món nào. Hãy thêm món mới!</div>`
+                : data.map(m => `
+                <div class="menu-item-row">
+                    <div><b>${m.item_name} <span style="font-size:0.8rem;color:var(--t3)">(${m.unit})</span></b></div>
+                    <div style="display:flex;align-items:center;gap:15px;">
+                        <b style="color:var(--green3)">${m.price.toLocaleString()}đ</b>
+                        <button class="delete-menu-item-btn" onclick="deleteMenu('${m.id}','${m.item_name.replace(/'/g,"\\'")}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`).join('');
+        }
+    } catch(e) { showToast("Lỗi load Menu!", "error"); }
+}
+
+async function deleteMenu(id, name) {
+    const ans = await gModal("Xóa Món", `Xóa món "${name}"?\nHệ thống sẽ xóa luôn lịch sử giao dịch liên quan để tránh xung đột.`, "confirm", "trash", "var(--red)");
+    if (!ans) return;
+    showToast("Đang dọn dữ liệu liên quan...", "info");
+    try {
+        await sbClient.from('order_details').delete().eq('menu_id', id);
+        await sbClient.from('recipes').delete().eq('menu_id', id);
+        await sbClient.from('menu').delete().eq('id', id);
+        showToast("Đã xóa món thành công!", "success");
+        loadMenu();
+    } catch(e) { console.error(e); showToast("Lỗi khi xóa món.", "error"); }
+}
+
+async function addMenuItem() {
+    const n = document.getElementById('m-name').value;
+    const p = document.getElementById('m-price').value.replace(/\D/g, '');
+    const u = document.getElementById('m-unit').value;
+    if (n && p) {
+        try {
+            await sbClient.from('menu').insert([{ item_name: n, price: parseInt(p), unit: u, branch_id: currentBranch }]);
+            showToast("Đã lưu món!", "success"); loadMenu();
+            document.getElementById('m-name').value = ''; document.getElementById('m-price').value = ''; document.getElementById('m-unit').value = '';
+        } catch(e) { showToast("Lỗi lưu món!", "error"); }
+    } else { showToast("Nhập đủ Tên và Giá món!", "error"); }
+}
+
+async function loadInventory() {
+    try {
+        const { data, error } = await sbClient.from('inventory').select('*').eq('branch_id', currentBranch);
+        if(error) throw error;
+        if (data) {
+            document.getElementById('inventory-list').innerHTML = data.length === 0
+                ? `<div style="color:var(--t2);padding:20px;">Kho trống. Hãy nhập hàng!</div>`
+                : data.map(i => `<div class="table-card"><div style="font-size:30px;margin-bottom:10px;color:${i.quantity<5?'var(--red)':'var(--gold)'}"><i class="fas fa-box"></i></div><div style="font-weight:800;margin-bottom:5px;">${i.ingredient_name}</div><div style="font-size:1.2rem;font-weight:900;color:${i.quantity<5?'var(--red)':'var(--green3)'}">${i.quantity} <span style="font-size:0.8rem">${i.unit}</span></div></div>`).join('');
+        }
+    } catch(e) { showToast("Lỗi load Kho!", "error"); }
+}
+
+async function addInventoryItem() {
+    const n = await gModal("Nhập Kho", "Tên nguyên liệu:", "prompt", "box"); if (!n) return;
+    const q = await gModal("Nhập Kho", "Số lượng ban đầu:", "prompt", "sort-numeric-up"); if (!q) return;
+    const u = await gModal("Nhập Kho", "Đơn vị (kg, lít, hộp...):", "prompt", "balance-scale");
+    try {
+        await sbClient.from('inventory').insert([{ ingredient_name: n, quantity: parseFloat(q), unit: u || 'cái', branch_id: currentBranch }]);
+        showToast("Đã nhập kho!", "success"); loadInventory();
+    } catch(e) { showToast("Lỗi nhập kho!", "error"); }
+}
+
+async function loadSettings() {
+    ['bida','cafe','karaoke','homestay','hotel','motel'].forEach(m => {
+        const cb = document.getElementById(`mod-${m}`);
+        if(cb) cb.checked = branchConfig.models.includes(m);
+    });
+    document.getElementById('cfg-rate-normal').value = (branchConfig.rateNormal||0).toLocaleString('vi-VN').replace(/,/g,'.');
+    document.getElementById('cfg-rate-peak').value = (branchConfig.ratePeak||0).toLocaleString('vi-VN').replace(/,/g,'.');
+    document.getElementById('cfg-peak-start').value = branchConfig.peakStart;
+    document.getElementById('cfg-peak-end').value = branchConfig.peakEnd;
+    document.getElementById('cfg-bank-id').value = branchConfig.bankId;
+    document.getElementById('cfg-bank-acc').value = branchConfig.bankAcc;
+    document.getElementById('cfg-bank-name').value = branchConfig.bankName;
+    document.getElementById('cfg-lat').value = branchConfig.lat;
+    document.getElementById('cfg-lng').value = branchConfig.lng;
+    document.getElementById('cfg-limit').value = branchConfig.cloudLimit;
+    document.getElementById('cfg-autoprint').value = branchConfig.autoPrint ? "true" : "false";
+    document.getElementById('cfg-webhook').value = branchConfig.webhookUrl || '';
+    document.getElementById('cfg-phone').value = branchConfig.phone || '';
+
+    try {
+        if (currentUser.role === 'master') {
+            document.getElementById('master-branch-control').style.display = 'block';
+            document.getElementById('opt-role-tenant').style.display = 'block';
+            const { data: br } = await sbClient.from('branches').select('*');
+            if (br) {
+                const sel = document.getElementById('cfg-branch-select');
+                if (sel) sel.innerHTML = br.map(b => `<option value="${b.id}" ${b.id===currentBranch?'selected':''}>${b.name}</option>`).join('');
+            }
+        } else {
+            document.getElementById('master-branch-control').style.display = 'none';
+            document.getElementById('opt-role-tenant').style.display = 'none';
+        }
+
+        const { data: users } = await sbClient.from('users').select('*').eq('branch_id', currentBranch);
+        if (users) {
+            document.getElementById('users-list').innerHTML = users.map(u => `
+                <div style="display:flex;justify-content:space-between;padding:10px;background:rgba(0,0,0,0.3);border:1px solid var(--border);margin-bottom:8px;border-radius:8px;">
+                    <div><b>${u.username}</b> <span style="font-size:0.7rem;background:var(--p);padding:2px 6px;border-radius:4px;">${u.role}</span></div>
+                    ${u.role !== 'master' ? `<button onclick="delUser('${u.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;"><i class="fas fa-trash"></i></button>` : ''}
+                </div>`).join('');
+        }
+    } catch(e) {}
+}
+
+function saveBranchSettings() {
+    const bankAccountInput = document.getElementById('cfg-bank-acc').value;
+    if (bankAccountInput && !/^\d+$/.test(bankAccountInput)) return showToast("Số tài khoản chỉ được chứa số.", "error");
+
+    let models = [];
+    ['bida','cafe','karaoke','homestay','hotel','motel'].forEach(m => {
+        const cb = document.getElementById(`mod-${m}`);
+        if (cb && cb.checked) models.push(m);
+    });
+    if (models.length === 0) return showToast("Phải chọn ít nhất 1 mô hình!", "error");
+
+    branchConfig.models = models;
+    branchConfig.rateNormal = Number(document.getElementById('cfg-rate-normal').value.replace(/\D/g, ''));
+    branchConfig.ratePeak = Number(document.getElementById('cfg-rate-peak').value.replace(/\D/g, ''));
+    branchConfig.peakStart = document.getElementById('cfg-peak-start').value;
+    branchConfig.peakEnd = document.getElementById('cfg-peak-end').value;
+    branchConfig.bankId = document.getElementById('cfg-bank-id').value;
+    branchConfig.bankAcc = bankAccountInput;
+    branchConfig.bankName = document.getElementById('cfg-bank-name').value;
+    branchConfig.lat = parseFloat(document.getElementById('cfg-lat').value);
+    branchConfig.lng = parseFloat(document.getElementById('cfg-lng').value);
+    branchConfig.cloudLimit = parseInt(document.getElementById('cfg-limit').value) || 5000;
+    branchConfig.autoPrint = document.getElementById('cfg-autoprint').value === "true";
+    branchConfig.webhookUrl = document.getElementById('cfg-webhook').value;
+    branchConfig.phone = document.getElementById('cfg-phone').value;
+
+    localStorage.setItem('GAU_CFG', JSON.stringify(branchConfig));
+    showToast("✅ Lưu cấu hình thành công!", "success");
+    renderZoneTabs(); checkCloudLimit();
+}
+
+async function addUser() {
+    const u = document.getElementById('new-u-name').value;
+    const p = document.getElementById('new-u-pass').value;
+    const r = document.getElementById('new-u-role').value;
+    if (!u || !p) return showToast("Nhập đủ thông tin", "error");
+    try {
+        await sbClient.from('users').insert([{ username: u, password: p, role: r, branch_id: currentBranch }]);
+        showToast("Tạo tài khoản thành công!", "success");
+        document.getElementById('new-u-name').value = ''; document.getElementById('new-u-pass').value = '';
+        loadSettings();
+    } catch(e) { showToast("Lỗi tạo user!", "error"); }
+}
+
+async function delUser(id) {
+    const ans = await gModal("Xóa nhân sự", "Chắc chắn thu hồi tài khoản này?", "confirm", "user-times", "var(--red)");
+    if (ans) { 
+        try {
+            await sbClient.from('users').delete().eq('id', id); loadSettings(); 
+        } catch(e) { showToast("Lỗi xóa user!", "error"); }
+    }
+}
+
+async function addNewBranch() {
+    const name = await gModal("Chi nhánh mới", "Tên chi nhánh:", "prompt", "store", "var(--gold)");
+    if (name) {
+        try {
+            const id = 'S' + Date.now();
+            await sbClient.from('branches').insert([{ id, name }]);
+            showToast("Tạo chi nhánh thành công", "success"); loadSettings();
+        } catch(e) { showToast("Lỗi tạo nhánh!", "error"); }
+    }
+}
+
+function changeBranch(id) {
+    currentBranch = id;
+    loadSettings(); loadTables(); loadMenu(); loadInventory();
+    showToast("Đã chuyển sang quản lý Nhánh khác", "info");
+}
+
+async function editBranchName() {
+    const newName = await gModal("Đổi tên Nhánh", "Nhập tên mới:", "prompt", "pen", "var(--green3)");
+    if (newName) {
+        try {
+            await sbClient.from('branches').update({ name: newName }).eq('id', currentBranch);
+            document.getElementById('display-branch-name').innerText = newName;
+            showToast("Đã đổi tên!", "success");
+        } catch(e) { showToast("Lỗi đổi tên!", "error"); }
+    }
+}
+
+async function confirmLogout() {
+    const ans = await gModal("Đăng xuất", "Bạn muốn thoát khỏi hệ thống?", "confirm", "sign-out-alt", "var(--orange)");
+    if (ans) {
+        if(tickerInterval) clearInterval(tickerInterval);
+        location.reload();
+    }
+}
+</script>
+</body>
+</html>
