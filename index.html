@@ -897,6 +897,7 @@ let modelChartInstance = null;
 let reportPeriod = 'day';
 let lastLoadedDay = new Date().toLocaleDateString('vi-VN');
 let tablesDataCache = [];
+let isSwitchingZone = false;
 
 let savedConfig = {};
 try { 
@@ -1055,6 +1056,14 @@ function initApp() {
     tickerInterval = setInterval(ticker, 1000);
 }
 
+function toggleMobileMenuForm() {
+    let form = document.getElementById('menu-form-box');
+    if(form) {
+        if(form.classList.contains('show')) form.classList.remove('show');
+        else form.classList.add('show');
+    }
+}
+
 // ==========================================
 // 4. BỘ ĐẾM GIỜ (TICKER)
 // ==========================================
@@ -1168,18 +1177,8 @@ async function checkCloudLimit() {
         if (count >= lim * 0.9) {
             document.getElementById('cloud-warning-text').innerText = `⚠️ RADAR CLOUD: Đã dùng ${fmtMoney(count)}/${fmtMoney(lim)} bill. Sếp xuất Excel dọn dẹp đi ạ!`;
             ban.style.display = 'flex';
-        } else {
-            ban.style.display = 'none';
-        }
+        } else { ban.style.display = 'none'; }
     } catch(e){}
-}
-
-function toggleMobileMenuForm() {
-    let form = document.getElementById('menu-form-box');
-    if(form) {
-        if(form.classList.contains('show')) form.classList.remove('show');
-        else form.classList.add('show');
-    }
 }
 
 // ==========================================
@@ -1187,7 +1186,6 @@ function toggleMobileMenuForm() {
 // ==========================================
 function renderZoneTabs() {
     let allowedModels = branchConfig.models || [];
-    if(currentUser && currentUser.role === 'tenant') allowedModels = branchConfig.models; 
     
     if (!allowedModels.includes(currentZoneFilter) && allowedModels.length > 0) {
         currentZoneFilter = allowedModels[0];
@@ -1200,7 +1198,6 @@ function renderZoneTabs() {
 }
 
 function switchZone(z, btn) {
-    // 🔥 FIX 1: Chặn bấm vô nghĩa
     if (currentZoneFilter === z) return; 
     
     currentZoneFilter = z;
@@ -1209,7 +1206,6 @@ function switchZone(z, btn) {
     renderTablesFromCache();
 }
 
-// 🔥 FIX 5: TẢI SONG SONG (PROMISE.ALL) SIÊU TỐC
 async function loadTables() {
     const grid = document.getElementById('tables-container');
     if (!grid) return;
@@ -1295,7 +1291,6 @@ async function addTable() {
     }
 }
 
-// 🔥 FIX 8: BỌC TRY CATCH CẨN THẬN KHI XÓA BÀN
 async function deleteCurrentTable() {
     if(!activeTableId) return;
     const ans = await gModal("Xóa bàn", `Xóa bàn "${activeTableName}"?`, "confirm", "trash", "var(--red)");
@@ -1313,7 +1308,6 @@ async function deleteCurrentTable() {
             await sbClient.from('zones_tables').delete().eq('id', activeTableId);
             await sbClient.from('pending_orders').delete().eq('table_id', activeTableId);
             
-            // Xóa xong DB mới cập nhật Cache
             delete localCarts[activeTableId];
             saveCartsToSession();
             tablesDataCache = tablesDataCache.filter(t => String(t.id) !== String(activeTableId));
@@ -1328,10 +1322,9 @@ async function deleteCurrentTable() {
     }
 }
 
-// 🔥 FIX 2, 3, 4, 7: CHUYỂN BÀN THÔNG MINH, TỐI ƯU HIỆU NĂNG
+// CHUYỂN BÀN THÔNG MINH
 async function transferCurrentTable() {
     try {
-        // Fix 7: Dùng thẳng cache thay vì gọi DB thừa
         const emptyTables = tablesDataCache.filter(t => String(t.branch_id) === String(currentBranch) && t.status === 'trống');
         
         if(emptyTables.length === 0) return showToast("Không có bàn trống nào trong quán!", "error");
@@ -1353,7 +1346,6 @@ async function transferCurrentTable() {
             
             try {
                 if (oldHasTimer && !newHasTimer) {
-                    // TỪ BIDA SANG CAFE: Tắt đồng hồ cũ, chốt tiền giờ thành món ăn
                     const {data:ses} = await sbClient.from('billiards_sessions').select('id, start_time').eq('table_id', activeTableId).is('end_time', null).order('start_time',{ascending:false}).limit(1);
                     if(ses && ses.length > 0) {
                         let tf = calcTimeFee(ses[0].start_time, new Date().toISOString(), activeTableType, 'night') || 0;
@@ -1368,22 +1360,17 @@ async function transferCurrentTable() {
                         }
                         await sbClient.from('billiards_sessions').update({end_time: new Date().toISOString(), total_price: tf}).eq('id', ses[0].id);
                     }
-                    // Fix 3: Xóa cache đồng hồ
                     delete activeSessionsCache[activeTableId];
                 } 
                 else if (!oldHasTimer && newHasTimer) {
-                    // TỪ CAFE SANG BIDA: Bật đồng hồ mới
                     await sbClient.from('billiards_sessions').insert([{table_id: targetId, start_time: new Date().toISOString()}]);
-                    // Fix 3: Thêm cache đồng hồ
                     activeSessionsCache[targetId] = new Date().toISOString();
                 }
                 else if (oldHasTimer && newHasTimer) {
-                    // BIDA SANG BIDA: Đẩy nguyên đồng hồ cũ sang bàn mới
                     const {data:ses} = await sbClient.from('billiards_sessions').select('id').eq('table_id', activeTableId).is('end_time', null).order('start_time',{ascending:false}).limit(1);
                     if(ses && ses.length > 0) {
                         await sbClient.from('billiards_sessions').update({table_id: targetId}).eq('id', ses[0].id);
                     }
-                    // Fix 3: Di chuyển cache đồng hồ
                     if (activeSessionsCache[activeTableId]) {
                         activeSessionsCache[targetId] = activeSessionsCache[activeTableId];
                         delete activeSessionsCache[activeTableId];
@@ -1400,7 +1387,6 @@ async function transferCurrentTable() {
                 delete localCarts[activeTableId];
                 saveCartsToSession();
                 
-                // Fix 4: Ép kiểu String
                 let srcTbl = tablesDataCache.find(t => String(t.id) === String(activeTableId));
                 let tgtTbl = tablesDataCache.find(t => String(t.id) === String(targetId));
                 if(srcTbl) { srcTbl.status = 'trống'; srcTbl.book_name = null; srcTbl.book_phone = null; srcTbl.book_time = null; }
@@ -1408,7 +1394,6 @@ async function transferCurrentTable() {
                 
                 closeDrawer();
                 
-                // Fix 2: Tự động chuyển Tab hoặc Render lại (Không gọi DB thừa thãi)
                 if (targetTable.type !== currentZoneFilter) {
                     let targetTabBtn = document.querySelector(`.zone-tab[data-zone="${targetTable.type}"]`);
                     if (targetTabBtn) switchZone(targetTable.type, targetTabBtn);
@@ -1518,10 +1503,7 @@ async function openTable(id, type, status, name) {
             document.getElementById('bida-info').style.display = 'block';
             try {
                 const {data} = await sbClient.from('billiards_sessions').select('start_time').eq('table_id', id).is('end_time', null).order('start_time', {ascending:false}).limit(1);
-                if(data && data.length>0 && data[0].start_time) { 
-                    activeTableStartTime = data[0].start_time; 
-                    document.getElementById('bida-start-time').innerText = new Date(activeTableStartTime).toLocaleTimeString('vi-VN'); 
-                }
+                if(data && data.length>0 && data[0].start_time) { activeTableStartTime = data[0].start_time; document.getElementById('bida-start-time').innerText = new Date(activeTableStartTime).toLocaleTimeString('vi-VN'); }
             } catch(e){} 
         } else {
             document.getElementById('bida-info').style.display = 'none';
@@ -1669,7 +1651,6 @@ function selectPayMethod(m) {
 
 function closePaymentModal() { document.getElementById('payment-modal').classList.remove('active'); }
 
-// 🔥 FIX 6: TỐI ƯU CẬP NHẬT CACHE SAU THANH TOÁN
 async function processCheckout(btn) {
     let org = btn.innerHTML; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> XỬ LÝ...'; btn.disabled = true;
     let { tId, type, total, method, cart, tf, base, disc, sur } = currentPayContext; showToast("Đang thanh toán...", "info");
@@ -1688,8 +1669,8 @@ async function processCheckout(btn) {
         }
 
         if (total > 0 || cart.length > 0) {
-            const {data:ord} = await sbClient.from('orders').insert([{ table_id: tId, user_id: currentUser?.id, branch_id: currentBranch, total_amount: total, discount_pct: document.getElementById('discount-pct').value || 0, discount_amt: disc, model_type: type }]).select();
-            if (ord && cart.length > 0) {
+            const {data:ord, error:errO} = await sbClient.from('orders').insert([{ table_id: tId, user_id: currentUser?.id, branch_id: currentBranch, total_amount: total, discount_pct: document.getElementById('discount-pct').value || 0, discount_amt: disc, model_type: type }]).select();
+            if (!errO && ord && cart.length > 0) {
                 for (let item of cart) {
                     await sbClient.from('order_details').insert([{order_id:ord[0].id, menu_id:item.id, quantity:item.qty}]);
                     const {data:recs} = await sbClient.from('recipes').select('*').eq('menu_id',item.id);
@@ -1725,10 +1706,8 @@ async function processCheckout(btn) {
 
         delete localCarts[tId]; saveCartsToSession(); closePaymentModal(); closeDrawer(); 
         
-        // FIX 6: Tối ưu gọi lại DOM
         renderTablesFromCache(); 
         
-        // Cập nhật số liệu ngầm
         loadInventory(); loadDebts();
         if(currentUser && currentUser.role !== 'staff') filterReport(reportPeriod); checkCloudLimit();
         
@@ -1823,7 +1802,7 @@ async function confirmExportAndClear() {
             
             let delQ = sbClient.from('orders').delete().gte('created_at', sD.toISOString()); if(currentUser.role === 'tenant') delQ = delQ.in('model_type', branchConfig.models||[]); else if(currentUser.role !== 'master') delQ = delQ.eq('branch_id', currentBranch);
             
-            await delQ; showToast("Dọn dẹp thành công! Đang làm mới...", "success"); filterReport(reportPeriod);
+            await delQ; showToast("Dọn dẹp thành công! Đang làm mới...", "success"); filterReport(reportPeriod); 
         } catch(e) { showToast("Có lỗi khi tạo báo cáo", "error"); }
     }
 }
@@ -1842,7 +1821,7 @@ async function loadDebts() {
                 return `<tr><td style="padding:15px"><b>${d.customer_name}</b><br><span style="font-size:0.8rem;color:var(--t2)">${d.customer_phone||'N/A'}</span></td><td style="padding:15px;color:var(--red);font-weight:bold">${fmtMoney(d.amount)}đ</td><td style="padding:15px;color:var(--t2)">${new Date(d.created_at).toLocaleDateString('vi-VN')}</td><td style="padding:15px;text-align:right"><button class="btn btn-g" style="padding:8px 12px;font-size:0.85rem;border-radius:8px" onclick="payDebt('${d.id}','${d.customer_name}',${d.amount}, '${safeCartBase64}')"><i class="fas fa-check-circle"></i> Thu Nợ</button></td></tr>`;
             }).join('');
         }
-    } catch(e) { let listEl = document.getElementById('debt-list'); if(listEl) listEl.innerHTML = `<tr><td colspan="4" style="color:var(--red);text-align:center;padding:20px;">Lỗi kết nối bảng debts!</td></tr>`; }
+    } catch(e) {}
 }
 
 async function payDebt(id, name, amt, safeCartBase64) {
@@ -1941,45 +1920,123 @@ async function loadInventory() {
 async function addInventoryItem() { const n = await gModal("Kho", "Tên nguyên liệu:", "prompt"); if(!n) return; const q = await gModal("Kho", "Số lượng ban đầu:", "prompt"); if(!q) return; const u = await gModal("Kho", "Đơn vị:", "prompt"); await sbClient.from('inventory').insert([{ingredient_name: n, quantity: parseFloat(q), unit: u || 'cái', branch_id: currentBranch}]); showToast("Đã nhập!"); loadInventory(); }
 
 // ==========================================
-// 12. CÀI ĐẶT & ADMIN
+// 12. CÀI ĐẶT & ADMIN (ĐÃ FIX PHÂN QUYỀN MÔ HÌNH KINH DOANH)
 // ==========================================
 async function loadSettings() {
-    if(document.getElementById('cfg-bida-normal')) {
-        document.getElementById('cfg-bida-normal').value = fmtMoney(branchConfig.bidaNormal); document.getElementById('cfg-bida-peak').value = fmtMoney(branchConfig.bidaPeak); document.getElementById('cfg-bida-start').value = branchConfig.bidaStart; document.getElementById('cfg-bida-end').value = branchConfig.bidaEnd;
-        document.getElementById('cfg-kara-normal').value = fmtMoney(branchConfig.karaNormal); document.getElementById('cfg-kara-peak').value = fmtMoney(branchConfig.karaPeak); document.getElementById('cfg-kara-start').value = branchConfig.karaStart; document.getElementById('cfg-kara-end').value = branchConfig.karaEnd;
-        document.getElementById('cfg-home-night').value = fmtMoney(branchConfig.homeNight); document.getElementById('cfg-home-hour').value = fmtMoney(branchConfig.homeHour); document.getElementById('cfg-home-day-start').value = branchConfig.homeDayStart || '06:00'; document.getElementById('cfg-home-night-start').value = branchConfig.homeNightStart || '18:00';
-        document.getElementById('cfg-bank-id').value = branchConfig.bankId; document.getElementById('cfg-bank-acc').value = branchConfig.bankAcc; document.getElementById('cfg-bank-name').value = branchConfig.bankName; document.getElementById('cfg-phone').value = branchConfig.phone; document.getElementById('cfg-autoprint').value = branchConfig.autoPrint ? "true" : "false";
-        
-        const m = branchConfig.models || [];
-        document.getElementById('cfg-bida-group').style.display = m.includes('bida') ? 'block' : 'none'; document.getElementById('cfg-karaoke-group').style.display = m.includes('karaoke') ? 'block' : 'none'; document.getElementById('cfg-luutru-group').style.display = (m.includes('homestay')||m.includes('hotel')||m.includes('motel')) ? 'block' : 'none';
-        
-        if(currentUser?.role === 'master') {
-            document.getElementById('master-business-control').style.display = 'block'; document.getElementById('master-branch-control').style.display = 'block'; document.getElementById('opt-role-tenant').style.display = 'block';
-            document.querySelectorAll('.cfg-model-check').forEach(c => c.checked = m.includes(c.value));
-            try { const {data:br} = await sbClient.from('branches').select('*'); if(br) document.getElementById('cfg-branch-select').innerHTML = br.map(b=>`<option value="${b.id}" ${b.id===currentBranch?'selected':''}>${b.name}</option>`).join(''); } catch(e){}
-        } else { document.getElementById('master-business-control').style.display = 'none'; document.getElementById('master-branch-control').style.display = 'none'; document.getElementById('opt-role-tenant').style.display = 'none'; }
+    if(!document.getElementById('cfg-bida-normal')) return;
 
-        try {
-            const {data:usr} = await sbClient.from('users').select('*').eq('branch_id', currentBranch);
-            if(usr) { document.getElementById('users-list').innerHTML = usr.map(u => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(0,0,0,0.3);border:1px solid var(--border);margin-bottom:8px;border-radius:8px;"><div><b>${u.username}</b> <span style="font-size:0.7rem;background:var(--p);padding:2px 6px;border-radius:4px;">${u.role}</span></div>${u.role !== 'master' ? `<button onclick="delUser('${u.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;"><i class="fas fa-trash"></i></button>` : ''}</div>`).join(''); }
+    if(currentUser?.role === 'master') {
+        document.getElementById('master-business-control').style.display = 'block'; 
+        document.getElementById('master-branch-control').style.display = 'block'; 
+        document.getElementById('opt-role-tenant').style.display = 'block';
+        
+        try { 
+            const {data:br} = await sbClient.from('branches').select('*'); 
+            if(br) {
+                document.getElementById('cfg-branch-select').innerHTML = br.map(b=>`<option value="${b.id}" ${String(b.id)===String(currentBranch)?'selected':''}>${b.name}</option>`).join(''); 
+                
+                // Cập nhật branchConfig.models theo nhánh ĐANG CHỌN trên giao diện
+                let currBrInfo = br.find(b => String(b.id) === String(currentBranch));
+                if(currBrInfo && currBrInfo.models) {
+                    branchConfig.models = currBrInfo.models.split(',').map(s=>s.trim());
+                }
+            }
         } catch(e){}
+        
+        // Cập nhật dấu tick theo branchConfig.models mới lấy về
+        document.querySelectorAll('.cfg-model-check').forEach(c => c.checked = (branchConfig.models || []).includes(c.value));
+    } else { 
+        document.getElementById('master-business-control').style.display = 'none'; 
+        document.getElementById('master-branch-control').style.display = 'none'; 
+        document.getElementById('opt-role-tenant').style.display = 'none'; 
     }
+
+    document.getElementById('cfg-bida-normal').value = fmtMoney(branchConfig.bidaNormal); 
+    document.getElementById('cfg-bida-peak').value = fmtMoney(branchConfig.bidaPeak); 
+    document.getElementById('cfg-bida-start').value = branchConfig.bidaStart; 
+    document.getElementById('cfg-bida-end').value = branchConfig.bidaEnd;
+    
+    document.getElementById('cfg-kara-normal').value = fmtMoney(branchConfig.karaNormal); 
+    document.getElementById('cfg-kara-peak').value = fmtMoney(branchConfig.karaPeak); 
+    document.getElementById('cfg-kara-start').value = branchConfig.karaStart; 
+    document.getElementById('cfg-kara-end').value = branchConfig.karaEnd;
+    
+    document.getElementById('cfg-home-night').value = fmtMoney(branchConfig.homeNight); 
+    document.getElementById('cfg-home-hour').value = fmtMoney(branchConfig.homeHour); 
+    document.getElementById('cfg-home-day-start').value = branchConfig.homeDayStart || '06:00'; 
+    document.getElementById('cfg-home-night-start').value = branchConfig.homeNightStart || '18:00';
+    
+    document.getElementById('cfg-bank-id').value = branchConfig.bankId; 
+    document.getElementById('cfg-bank-acc').value = branchConfig.bankAcc; 
+    document.getElementById('cfg-bank-name').value = branchConfig.bankName; 
+    document.getElementById('cfg-phone').value = branchConfig.phone; 
+    document.getElementById('cfg-autoprint').value = branchConfig.autoPrint ? "true" : "false";
+
+    const m = branchConfig.models || [];
+    document.getElementById('cfg-bida-group').style.display = m.includes('bida') ? 'block' : 'none'; 
+    document.getElementById('cfg-karaoke-group').style.display = m.includes('karaoke') ? 'block' : 'none'; 
+    document.getElementById('cfg-luutru-group').style.display = (m.includes('homestay')||m.includes('hotel')||m.includes('motel')) ? 'block' : 'none';
+
+    try {
+        const {data:usr} = await sbClient.from('users').select('*').eq('branch_id', currentBranch);
+        if(usr) { document.getElementById('users-list').innerHTML = usr.map(u => `<div style="display:flex;justify-content:space-between;padding:10px;background:rgba(0,0,0,0.3);border:1px solid var(--border);margin-bottom:8px;border-radius:8px;"><div><b>${u.username}</b> <span style="font-size:0.7rem;background:var(--p);padding:2px 6px;border-radius:4px;">${u.role}</span></div>${u.role !== 'master' ? `<button onclick="delUser('${u.id}')" style="background:none;border:none;color:var(--red);cursor:pointer;"><i class="fas fa-trash"></i></button>` : ''}</div>`).join(''); }
+    } catch(e){}
 }
 
-function saveBranchSettings() {
-    branchConfig.bidaNormal = parseMoney(document.getElementById('cfg-bida-normal').value); branchConfig.bidaPeak = parseMoney(document.getElementById('cfg-bida-peak').value); branchConfig.bidaStart = document.getElementById('cfg-bida-start').value; branchConfig.bidaEnd = document.getElementById('cfg-bida-end').value;
-    branchConfig.karaNormal = parseMoney(document.getElementById('cfg-kara-normal').value); branchConfig.karaPeak = parseMoney(document.getElementById('cfg-kara-peak').value); branchConfig.karaStart = document.getElementById('cfg-kara-start').value; branchConfig.karaEnd = document.getElementById('cfg-kara-end').value;
-    branchConfig.homeNight = parseMoney(document.getElementById('cfg-home-night').value); branchConfig.homeHour = parseMoney(document.getElementById('cfg-home-hour').value); branchConfig.homeDayStart = document.getElementById('cfg-home-day-start').value; branchConfig.homeNightStart = document.getElementById('cfg-home-night-start').value;
-    branchConfig.bankId = document.getElementById('cfg-bank-id').value; branchConfig.bankAcc = document.getElementById('cfg-bank-acc').value; branchConfig.bankName = document.getElementById('cfg-bank-name').value; branchConfig.phone = document.getElementById('cfg-phone').value; branchConfig.autoPrint = document.getElementById('cfg-autoprint').value === 'true';
-    if(currentUser?.role === 'master') { branchConfig.models = Array.from(document.querySelectorAll('.cfg-model-check:checked')).map(c=>c.value); }
-    localStorage.setItem('GAU_CFG', JSON.stringify(branchConfig)); showToast("Đã lưu Cài đặt!"); renderZoneTabs(); loadSettings();
+async function saveBranchSettings() {
+    branchConfig.bidaNormal = parseMoney(document.getElementById('cfg-bida-normal').value); 
+    branchConfig.bidaPeak = parseMoney(document.getElementById('cfg-bida-peak').value); 
+    branchConfig.bidaStart = document.getElementById('cfg-bida-start').value; 
+    branchConfig.bidaEnd = document.getElementById('cfg-bida-end').value;
+    
+    branchConfig.karaNormal = parseMoney(document.getElementById('cfg-kara-normal').value); 
+    branchConfig.karaPeak = parseMoney(document.getElementById('cfg-kara-peak').value); 
+    branchConfig.karaStart = document.getElementById('cfg-kara-start').value; 
+    branchConfig.karaEnd = document.getElementById('cfg-kara-end').value;
+    
+    branchConfig.homeNight = parseMoney(document.getElementById('cfg-home-night').value); 
+    branchConfig.homeHour = parseMoney(document.getElementById('cfg-home-hour').value); 
+    branchConfig.homeDayStart = document.getElementById('cfg-home-day-start').value; 
+    branchConfig.homeNightStart = document.getElementById('cfg-home-night-start').value;
+    
+    branchConfig.bankId = document.getElementById('cfg-bank-id').value; 
+    branchConfig.bankAcc = document.getElementById('cfg-bank-acc').value; 
+    branchConfig.bankName = document.getElementById('cfg-bank-name').value; 
+    branchConfig.phone = document.getElementById('cfg-phone').value; 
+    branchConfig.autoPrint = document.getElementById('cfg-autoprint').value === 'true';
+    
+    // Lưu các ngành kinh doanh ĐƯỢC CHỌN CHO CHI NHÁNH HIỆN TẠI VÀO DATABASE
+    if(currentUser?.role === 'master') { 
+        branchConfig.models = Array.from(document.querySelectorAll('.cfg-model-check:checked')).map(c=>c.value); 
+        try {
+            await sbClient.from('branches').update({models: branchConfig.models.join(',')}).eq('id', currentBranch);
+        } catch(e) { console.warn(e); }
+    }
+    
+    localStorage.setItem('GAU_CFG', JSON.stringify(branchConfig)); 
+    showToast("Đã lưu Cài đặt!"); 
+    renderZoneTabs(); 
+    loadSettings();
 }
 
 async function addUser() { const u = document.getElementById('new-u-name').value.trim(), p = document.getElementById('new-u-pass').value.trim(), r = document.getElementById('new-u-role').value; if(!u || !p) return showToast("Nhập đủ!", "error"); try { await sbClient.from('users').insert([{username:u, password:p, role:r, branch_id:currentBranch}]); showToast("Tạo user thành công!"); document.getElementById('new-u-name').value = ''; document.getElementById('new-u-pass').value = ''; loadSettings(); } catch(e){ showToast("Lỗi!", "error"); } }
 async function delUser(id) { if(await gModal("Xóa", "Xóa tài khoản này?", "confirm", "user-times", "var(--red)")) { await sbClient.from('users').delete().eq('id',id); loadSettings(); showToast("Đã xóa!"); } }
 async function addNewBranch() { const n = await gModal("Chi nhánh mới", "Tên chi nhánh:", "prompt", "store", "var(--gold)"); if(n) { await sbClient.from('branches').insert([{id:'S'+Date.now(), name:n}]); showToast("Tạo thành công!"); loadSettings(); } }
 async function moPopupChiaSeMenu() { const {data:br} = await sbClient.from('branches').select('id, name').neq('id', currentBranch); if(!br || br.length === 0) return showToast("Không có chi nhánh khác!", "error"); const tId = await gModal("Copy Menu", "Copy Thực đơn qua nhánh:", "select", "share-alt", "var(--p3)", br.map(b=>({value:b.id, label:b.name}))); if(tId) { showToast("Đang đồng bộ...", "info"); const {data:mGoc} = await sbClient.from('menu').select('*').eq('branch_id', currentBranch); if(mGoc && mGoc.length > 0) { let mNew = mGoc.map(m => { let c = {...m}; delete c.id; c.branch_id = tId; return c; }); await sbClient.from('menu').insert(mNew); showToast("Thành công!"); } else { showToast("Menu gốc trống!", "error"); } } }
-function changeBranch(id) { currentBranch = id; loadSettings(); loadTables(); loadMenu(); loadInventory(); loadDebts(); showToast("Đã chuyển nhánh!"); }
+
+function changeBranch(id) { 
+    currentBranch = id; 
+    currentZoneFilter = ''; // Ép hệ thống chọn lại Zone đầu tiên của chi nhánh mới
+    tablesDataCache = []; // Xóa Cache rác để tải lại từ đầu
+    
+    loadSettings(); 
+    loadTables(); 
+    loadMenu(); 
+    loadInventory(); 
+    loadDebts(); 
+    showToast("Đã chuyển nhánh!"); 
+}
+
 async function editBranchName() { const n = await gModal("Đổi tên", "Tên mới:", "prompt", "pen", "var(--green3)"); if(n) { await sbClient.from('branches').update({name: n}).eq('id', currentBranch); document.getElementById('display-branch-name').innerText = n; showToast("Đã đổi!"); } }
 async function confirmLogout() { if(await gModal("Thoát", "Đăng xuất?", "confirm", "sign-out-alt", "var(--orange)")) { if(tickerInterval) clearInterval(tickerInterval); location.reload(); } }
 </script>
