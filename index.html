@@ -3,51 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GẤU POS • V75 SUPREME MAX PRO</title>
-    <!-- Preconnect để tăng tốc tải CDN -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://unpkg.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>GẤU POS • V80 SUPREME MAX</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --p: #7c3aed; --p2: #6d28d9; --p3: #a78bfa;
-            --gold: #f59e0b; --gold2: #d97706; --gold3: #fcd34d;
-            --green: #10b981; --green2: #059669; --green3: #6ee7b7;
-            --red: #ef4444; --red2: #dc2626; --orange: #f97316;
-            --bg: #06080f; --bg2: #0d1220;
-            --card: rgba(17,24,39,0.75); --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.15);
-            --t1: #f9fafb; --t2: #9ca3af; --t3: #4b5563;
-            --r1: 12px; --r2: 18px; --r3: 24px; --r4: 32px;
+            --p: #7c3aed;
+            --p2: #6d28d9;
+            --p3: #a78bfa;
+            --gold: #f59e0b;
+            --gold2: #d97706;
+            --gold3: #fcd34d;
+            --green: #10b981;
+            --green2: #059669;
+            --green3: #6ee7b7;
+            --red: #ef4444;
+            --red2: #dc2626;
+            --orange: #f97316;
+            --bg: #06080f;
+            --bg2: #0d1220;
+            --card: rgba(17,24,39,0.75);
+            --border: rgba(255,255,255,0.08);
+            --border2: rgba(255,255,255,0.15);
+            --t1: #f9fafb;
+            --t2: #9ca3af;
+            --t3: #4b5563;
+            --r1: 12px;
+            --r2: 18px;
+            --r3: 24px;
+            --r4: 32px;
             --spring: cubic-bezier(0.175,0.885,0.32,1.275);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body, input, button, select { font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--t1); display: flex; height: 100dvh; overflow: hidden; position: relative; flex-direction: column; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* Animation & Background */
-        .bg-grid { position: fixed; inset: 0; pointer-events: none; background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px); background-size: 50px 50px; z-index: -2; }
-        .bg-orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: -1; animation: orbFloat 15s ease-in-out infinite; }
-        .bg-orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%); top: -200px; left: -100px; }
-        .bg-orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, rgba(16,185,129,0.1), transparent 70%); bottom: -150px; right: -100px; animation-delay: -5s; }
-        @keyframes orbFloat { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(30px, -20px); } }
+        body, input, button, select {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--t1);
+            display: flex;
+            height: 100dvh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -2;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: -1;
+            animation: orbFloat 15s ease-in-out infinite;
+        }
+
+        .bg-orb:nth-child(1) {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(124,58,237,0.15), transparent 70%);
+            top: -200px;
+            left: -100px;
+        }
+
+        .bg-orb:nth-child(2) {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(16,185,129,0.1), transparent 70%);
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, -20px); }
+        }
 
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--p3); border-radius: 10px; }
 
-        /* Components */
-        .btn { padding: 12px 24px; border-radius: var(--r2); border: none; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: all 0.25s var(--spring); display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: white; position: relative; z-index: 1; }
+        .btn {
+            padding: 12px 24px;
+            border-radius: var(--r2);
+            border: none;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.25s var(--spring);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: white;
+            z-index: 1;
+        }
+
         .btn:active { transform: scale(0.95); }
         .btn-p { background: linear-gradient(135deg, var(--p), var(--p2)); box-shadow: 0 5px 20px rgba(124,58,237,0.4); border: 1px solid rgba(255,255,255,0.1); }
         .btn-g { background: linear-gradient(135deg, var(--green), var(--green2)); box-shadow: 0 5px 20px rgba(16,185,129,0.4); border: 1px solid rgba(255,255,255,0.1); }
@@ -56,53 +131,162 @@
         .btn-outline { background: rgba(255,255,255,0.05); border: 1px solid var(--border2); color: var(--t1); transition: 0.3s; }
         .btn-outline:hover, .btn-outline.active { background: rgba(124,58,237,0.2); border-color: var(--p3); color: white; }
 
-        .text-input, .select-input { width: 100%; padding: 14px 16px; background: rgba(0,0,0,0.5); border: 1px solid var(--border2); border-radius: var(--r1); color: white; margin-bottom: 14px; outline: none; transition: 0.3s; }
-        .text-input:focus, .select-input:focus { border-color: var(--p3); box-shadow: 0 0 0 3px rgba(124,58,237,0.2); }
+        .text-input, .select-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--border2);
+            border-radius: var(--r1);
+            color: white;
+            margin-bottom: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .text-input:focus, .select-input:focus {
+            border-color: var(--p3);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.2);
+        }
+
         .select-input option { background: var(--bg2); color: white; }
         .field-label { display: block; margin-bottom: 8px; color: var(--t2); font-weight: 700; font-size: 0.85rem; }
 
-        .delete-menu-item-btn { background: rgba(239,68,68,0.1); border: 1px solid var(--red); color: var(--red); border-radius: 8px; padding: 8px 12px; cursor: pointer; transition: 0.3s; }
+        .delete-menu-item-btn {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
         .delete-menu-item-btn:hover { background: var(--red); color: white; transform: scale(1.1); }
         .menu-item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid var(--border); transition: 0.3s; }
         .menu-item-row:hover { background: rgba(255,255,255,0.02); }
 
-        /* Modals & Overlays */
-        .g-modal-overlay, .payment-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: 0.3s ease; }
+        .g-modal-overlay, .payment-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(10px);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .overlay-screen {
+            position: fixed;
+            inset: 0;
+            background: #06080f;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+
         .g-modal-overlay.active, .payment-overlay.active { display: flex; opacity: 1; }
-        /* overlay-screen (login/setup) dùng style.display trực tiếp — phải opacity: 1 ngay */
-        .overlay-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 1; }
+        .g-modal-box, .box {
+            background: var(--bg2);
+            padding: 30px;
+            border-radius: var(--r4);
+            border: 1px solid var(--p3);
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(124,58,237,0.3);
+            transform: scale(0.9);
+            transition: 0.3s var(--spring);
+        }
         
-        .g-modal-box, .box { background: var(--bg2); padding: 30px; border-radius: var(--r4); border: 1px solid var(--p3); width: 400px; max-width: 90%; text-align: center; box-shadow: 0 0 50px rgba(124,58,237,0.3); transform: scale(0.9); transition: 0.3s var(--spring); }
         .g-modal-overlay.active .g-modal-box, .payment-overlay.active .box { transform: scale(1); }
-        
+        .overlay-screen .box { transform: scale(1); }
+
         .pay-box { width: 580px; padding: 25px; max-height: 95dvh; overflow-y: auto; display: flex; flex-direction: column; }
         .pay-box::-webkit-scrollbar { width: 0; }
 
-        /* Layout */
         #main-app { display: none; flex: 1; width: 100%; height: 100%; overflow: hidden; flex-direction: row; }
-        .sidebar { width: 88px; background: rgba(6,8,15,0.95); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100; }
-        .sidebar-logo { width: 50px; height: 50px; background: linear-gradient(135deg, var(--p), var(--gold)); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 20px; }
-        .nav-btn { width: 70px; padding: 12px 0; background: transparent; border: none; color: var(--t3); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 800; font-size: 9px; text-transform: uppercase; border-radius: 12px; transition: 0.3s; }
+        
+        .sidebar {
+            width: 88px;
+            background: rgba(6,8,15,0.95);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--p), var(--gold));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            width: 70px;
+            padding: 12px 0;
+            background: transparent;
+            border: none;
+            color: var(--t3);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-weight: 800;
+            font-size: 9px;
+            text-transform: uppercase;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
         .nav-btn.active { color: white; background: rgba(124,58,237,0.2); }
         .nav-btn.active i { color: var(--p3); }
         .nav-btn i { font-size: 20px; }
 
-        .wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; z-index: 1; }
+        .wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; z-index: 1; }
         .header { padding: 14px 28px; background: rgba(6,8,15,0.7); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-        
         .view { display: none; flex: 1; padding: 24px; overflow-y: auto; }
         .view.active { display: block; animation: viewIn 0.4s ease; }
         @keyframes viewIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: none; } }
 
-        /* Pos Grid & Cards */
         .zone-tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .zone-tab { padding: 10px 24px; border-radius: var(--r1); font-weight: 800; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--t2); transition: 0.3s; white-space: nowrap; }
+        .zone-tab { padding: 10px 24px; border-radius: var(--r1); font-weight: 800; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--t2); transition: all 0.2s ease; white-space: nowrap; }
         .zone-tab.active { background: linear-gradient(135deg, var(--p), var(--p2)); color: white; border-color: var(--p3); box-shadow: 0 4px 15px rgba(124,58,237,0.4); }
+        .zone-tab:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding-bottom: 20px; }
-        .table-card { background: var(--card); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--r3); padding: 20px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; overflow: hidden; }
-        .table-card:hover { transform: translateY(-5px); border-color: var(--p3); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .tables-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 18px; padding-bottom: 20px; transition: opacity 0.15s ease; }
+        .tables-grid.loading { opacity: 0.4; pointer-events: none; }
+
+        @keyframes skeletonPulse { 0%,100%{opacity:.4} 50%{opacity:.7} }
+        .skel-card { background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:var(--r3); padding:20px; height:130px; animation: skeletonPulse 1.2s ease infinite; }
         
+        .table-card {
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--r3);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .table-card:hover { transform: translateY(-5px); border-color: var(--p3); box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .table-card.busy { border-color: var(--gold); background: rgba(245,158,11,0.08); }
         .table-card.booked { border-color: var(--p3); background: rgba(167,139,250,0.1); }
 
@@ -118,7 +302,6 @@
         .tbl-book-info { font-size: 0.8rem; color: var(--p3); margin-top: 8px; font-weight: bold; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 6px; }
         .tbl-time { font-family: 'Space Grotesk', monospace; font-size: 1.1rem; font-weight: 800; margin-top: 10px; color: var(--green3); }
 
-        /* Drawer & Quick Menu */
         .quick-item-wrapper { display: flex; flex-direction: column; width: 100%; grid-column: span 1; }
         .quick-item-wrapper.expanded { grid-column: 1 / -1; }
         .quick-item { background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--r1); display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.3s; }
@@ -127,7 +310,8 @@
         
         .variant-container { background: rgba(255,255,255,0.02); border: 1px solid var(--gold); border-top: none; padding: 10px; border-bottom-left-radius: var(--r1); border-bottom-right-radius: var(--r1); display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; animation: slideDown 0.3s forwards; }
         @keyframes slideDown { from {opacity: 0; transform: translateY(-5px);} to {opacity: 1; transform: translateY(0);} }
-        .v-btn { background: var(--bg2); border: 1px solid var(--border2); color: white; padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+
+        .v-btn { background: var(--bg2); border: 1px solid var(--border2); color: white; padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; cursor: pointer; text-align: center; transition: 0.2s; }
         .v-btn:hover { border-color: var(--gold); background: rgba(245,158,11,0.2); color: var(--gold3); }
 
         .qty-ctrl { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 3px 5px; border-radius: 8px; border: 1px solid var(--border2); }
@@ -137,11 +321,11 @@
         .bill-drawer { position: fixed; top: 0; right: -480px; width: 480px; max-width: 100%; height: 100dvh; background: var(--bg2); border-left: 1px solid var(--border2); z-index: 9501; transition: 0.4s cubic-bezier(0.4,0,0.2,1); display: flex; flex-direction: column; }
         .bill-drawer.open { right: 0; }
         .drawer-overlay.open { display: block; }
+
         .drawer-header { padding: 12px 15px; background: rgba(0,0,0,0.6); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .drawer-body { flex: 1; display: flex; flex-direction: column; gap: 10px; padding: 10px; overflow: hidden; }
         .drawer-footer { padding: 15px; padding-bottom: calc(15px + env(safe-area-inset-bottom)); background: rgba(0,0,0,0.8); border-top: 1px solid var(--border); }
 
-        /* Others */
         .glass-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r3); padding: 24px; margin-bottom: 20px; overflow-x: auto; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 24px; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; min-width: 400px; }
@@ -152,23 +336,22 @@
         .toast { padding: 15px 22px; border-radius: var(--r2); font-weight: 800; display: flex; align-items: center; gap: 12px; background: var(--bg2); border: 1px solid var(--border2); animation: toastIn 0.3s forwards; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Cảnh báo Cloud */
         #cloud-warning-banner { display: none; background: linear-gradient(90deg, rgba(239,68,68,0.95), rgba(220,38,38,0.95)); color: white; font-weight: 800; font-size: 0.85rem; padding: 10px 20px; gap: 10px; align-items: center; justify-content: center; text-align: center; z-index: 9998; border-bottom: 1px solid rgba(255,255,255,0.2); animation: bannerPulse 2s ease-in-out infinite; flex-shrink: 0; }
         @keyframes bannerPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 20px 4px rgba(239,68,68,0.3); } }
         #cloud-warning-banner .btn-banner { background: white; color: var(--red2); border: none; padding: 4px 12px; border-radius: 20px; font-weight: 900; font-size: 0.8rem; cursor: pointer; margin-left: 10px; }
 
-        /* Print Settings */
+        .mobile-only-btn { display: none; }
+
         #print-area { display: none; }
         @media print {
             html, body { height: auto !important; overflow: visible !important; display: block !important; background: white !important; color: black !important; }
             body > *:not(#print-area) { display: none !important; }
             #cloud-warning-banner { display: none !important; }
             #print-area { display: block !important; position: static !important; visibility: visible !important; width: 100% !important; padding: 0 !important; margin: 0 !important; color: black !important; font-family: 'Courier New', Courier, monospace !important; font-size: 14px !important; }
-            #print-area * { visibility: visible !important; }
             @page { size: 80mm auto; margin: 0; }
         }
 
-        /* Mobile Responsive */
+        /* --- MOBILE RESPONSIVE TỐI ƯU --- */
         @media (max-width: 900px) {
             #main-app { flex-direction: column; }
             .sidebar { width: 100%; height: auto; min-height: 70px; flex-direction: row; justify-content: space-around; padding: 0 5px; padding-bottom: env(safe-area-inset-bottom); border-right: none; border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000; box-shadow: 0 -5px 20px rgba(0,0,0,0.5); background: rgba(6,8,15,0.98); backdrop-filter: blur(20px); }
@@ -191,6 +374,11 @@
             .drawer-footer { padding: 15px; padding-bottom: calc(20px + env(safe-area-inset-bottom)); }
             #drawer-total { font-size: 1.6rem !important; }
             #toast-container { bottom: calc(85px + env(safe-area-inset-bottom)); right: 10px; left: 10px; }
+            
+            /* Logic ẩn khung thêm món trên Mobile, có nút Float */
+            .mobile-only-btn { display: inline-flex; position: fixed; bottom: 85px; right: 15px; z-index: 8000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); border-radius: 50px; padding: 15px 25px; font-size: 1rem; }
+            .menu-form-wrapper { display: none; position: fixed; top: 10vh; left: 5%; right: 5%; bottom: 10vh; z-index: 9999; background: var(--bg2); overflow-y: auto; box-shadow: 0 10px 50px rgba(0,0,0,0.8); border: 1px solid var(--p3); border-radius: 20px; padding: 20px; }
+            .menu-form-wrapper.show { display: block; animation: slideDown 0.3s; }
         }
     </style>
 </head>
@@ -240,7 +428,7 @@
     <div class="box" style="border-color:var(--gold);box-shadow:0 0 60px rgba(245,158,11,0.2);">
         <div style="font-size:50px;margin-bottom:10px;">☁️</div>
         <h2 style="color:var(--gold3);margin-bottom:10px;">KẾT NỐI ĐÁM MÂY</h2>
-        <p style="color:var(--t2);font-size:0.85rem;margin-bottom:20px;">Nhập URL và Key của Supabase để kết nối máy mới.</p>
+        <p style="color:var(--t2);font-size:0.85rem;margin-bottom:20px;">Nhập URL và Key của Supabase.</p>
         <input type="text" id="setup-url" class="text-input" placeholder="Supabase Project URL">
         <input type="password" id="setup-key" class="text-input" placeholder="Supabase Anon Key">
         <button class="btn btn-gold" style="width:100%;border-radius:20px;margin-top:20px;" onclick="handleSetup()"><i class="fas fa-satellite-dish"></i> KẾT NỐI HỆ THỐNG</button>
@@ -334,7 +522,7 @@
                     <span style="font-size:20px;font-weight:900;" id="display-branch-name">Tiệm Nhà Gấu</span>
                     <button id="btn-edit-branch" style="display:none;background:rgba(255,255,255,0.1);border:none;color:white;padding:5px 8px;border-radius:8px;cursor:pointer;font-size:12px;" onclick="editBranchName()"><i class="fas fa-pen"></i></button>
                 </div>
-                <span style="font-size:11px;font-weight:800;color:var(--t2);">V75 SUPREME PRO MAX - TÁCH GIÁ ĐỘC LẬP & BOOKING (BẢN FULL)</span>
+                <span style="font-size:11px;font-weight:800;color:var(--t2);">V80 SUPREME MAX - GIAO DIỆN CHUẨN & CHUYỂN BÀN THÔNG MINH</span>
             </div>
             <div style="padding:6px 14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:var(--green3);border-radius:20px;font-size:0.8rem;font-weight:800;">
                 <i class="fas fa-user-shield"></i> <span id="header-user-name">...</span>
@@ -351,15 +539,20 @@
 
         <section id="menu-admin" class="view">
             <h2 style="color:var(--p3);margin-bottom:20px;"><i class="fas fa-utensils"></i> Quản lý Thực đơn</h2>
+            <button class="btn btn-gold mobile-only-btn" onclick="toggleMobileMenuForm()"><i class="fas fa-plus"></i> Thêm Món</button>
+            
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;">
                 <div class="glass-card"><div id="menu-list"></div></div>
-                <div class="glass-card" style="position:sticky;top:0;height:fit-content;">
-                    <h3 style="margin-bottom:20px;color:var(--green3);">Thêm Món Mới</h3>
+                <div class="glass-card menu-form-wrapper" id="menu-form-box" style="position:sticky;top:0;height:fit-content;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <h3 style="color:var(--green3);">Thêm Món Mới</h3>
+                        <button class="btn mobile-only-btn" style="padding:5px 10px;background:rgba(255,255,255,0.1);" onclick="toggleMobileMenuForm()"><i class="fas fa-times"></i></button>
+                    </div>
                     <input type="text" id="m-name" class="text-input" placeholder="Tên món chính (VD: Mỳ cay bò)">
-                    <input type="text" id="m-unit" class="text-input" placeholder="Đơn vị (Tô, Ly, Lượt...)">
+                    <input type="text" id="m-unit" class="text-input" placeholder="Đơn vị (Tô, Ly...)">
                     <div id="variant-inputs-area">
                         <div class="variant-input-row" style="display:flex; gap:10px; margin-bottom:10px;">
-                            <input type="text" class="text-input v-label" placeholder="Size/Cấp độ (Trống nếu ko có)" style="flex:1; margin-bottom:0;">
+                            <input type="text" class="text-input v-label" placeholder="Size/Cấp độ" style="flex:1; margin-bottom:0;">
                             <input type="text" class="text-input v-price currency-input" placeholder="Giá bán" style="flex:1; margin-bottom:0;">
                             <button class="btn btn-danger" style="padding:0 15px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                         </div>
@@ -482,30 +675,22 @@
                         <label class="field-label">Giá nghỉ theo GIỜ (VNĐ/Giờ)</label>
                         <input type="text" id="cfg-home-hour" class="text-input currency-input" placeholder="VD: 50.000">
                         <div style="display:flex;gap:10px;margin-top:10px;border-top:1px dashed var(--green);padding-top:10px;">
-                            <div style="flex:1">
-                                <label class="field-label">Giờ bắt đầu tính NGÀY</label>
-                                <input type="time" id="cfg-home-day-start" class="text-input" value="06:00">
-                            </div>
-                            <div style="flex:1">
-                                <label class="field-label">Giờ bắt đầu tính ĐÊM</label>
-                                <input type="time" id="cfg-home-night-start" class="text-input" value="18:00">
-                            </div>
+                            <div style="flex:1"><label class="field-label">Giờ bắt đầu tính NGÀY</label><input type="time" id="cfg-home-day-start" class="text-input" value="06:00"></div>
+                            <div style="flex:1"><label class="field-label">Giờ bắt đầu tính ĐÊM</label><input type="time" id="cfg-home-night-start" class="text-input" value="18:00"></div>
                         </div>
                         <p style="font-size:0.8rem;color:var(--green3);margin-top:5px;font-style:italic;">*Mốc để nhân viên căn cứ thu tiền linh hoạt.</p>
                     </div>
 
                     <h3 style="margin-bottom:20px;color:var(--t1);"><i class="fas fa-qrcode"></i> VietQR & Thanh toán</h3>
                     <div style="display:flex;gap:10px;">
-                        <div style="flex:1"><label class="field-label">Mã NH (VD: MB)</label><input type="text" id="cfg-bank-id" class="text-input"></div>
+                        <div style="flex:1"><label class="field-label">Mã NH</label><input type="text" id="cfg-bank-id" class="text-input"></div>
                         <div style="flex:1.5"><label class="field-label">Số Tài Khoản</label><input type="text" id="cfg-bank-acc" class="text-input"></div>
                     </div>
-                    <label class="field-label">Tên Chủ Tài Khoản</label>
-                    <input type="text" id="cfg-bank-name" class="text-input">
-                    <label class="field-label">SĐT liên hệ (In Bill)</label>
-                    <input type="text" id="cfg-phone" class="text-input">
+                    <label class="field-label">Tên Chủ Tài Khoản</label><input type="text" id="cfg-bank-name" class="text-input">
+                    <label class="field-label">SĐT liên hệ (In Bill)</label><input type="text" id="cfg-phone" class="text-input">
                     <label class="field-label">Cấu hình In Bill</label>
                     <select id="cfg-autoprint" class="select-input">
-                        <option value="false">Tắt (Tự tick tay lúc Thanh toán)</option>
+                        <option value="false">Tắt (Tự tick tay lúc TT)</option>
                         <option value="true">Bật mặc định</option>
                     </select>
 
@@ -533,8 +718,7 @@
                 </div>
 
                 <div class="glass-card" id="admin-users-card" style="height:fit-content;">
-                    <h3 style="margin-bottom:20px;color:var(--green3);"><i class="fas fa-user-plus"></i> Quản trị Nhân sự</h3>
-                    
+                    <h3 style="margin-bottom:20px;color:var(--green3);"><i class="fas fa-user-plus"></i> Quản trị Nhánh & Nhân sự</h3>
                     <div id="master-branch-control" style="background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;margin-bottom:20px;display:none;">
                         <label class="field-label" style="color:var(--gold)">Quản lý Đa Chi Nhánh (Chỉ Sếp Tổng)</label>
                         <button class="btn btn-outline" style="width:100%" onclick="addNewBranch()"><i class="fas fa-plus"></i> Tạo Chi nhánh mới</button>
@@ -609,9 +793,8 @@
 
 <div id="toast-container"></div>
 <div id="print-area"></div>
-
 <script>
-// --- UTILS & FORMATTING ---
+// --- UTILITIES ---
 function fmtMoney(num) {
     return Math.round(Number(num) || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
@@ -627,49 +810,6 @@ document.addEventListener('input', function(e) {
     }
 });
 
-// --- GLOBALS ---
-const sbUrl = localStorage.getItem('GAU_SB_URL') || '';
-const sbKey = localStorage.getItem('GAU_SB_KEY') || '';
-let sbClient = null;
-let currentUser = null;
-let currentBranch = 'S1';
-let currentZoneFilter = 'bida';
-let activeTableId = null;
-let activeTableName = '';
-let activeTableType = '';
-let activeTableStartTime = null; 
-let localCarts = {};
-let currentPayContext = null;
-let tickerInterval = null;
-let activeSessionsCache = {}; 
-let chartInstance = null;
-let modelChartInstance = null;
-let reportPeriod = 'day';
-let lastLoadedDay = new Date().toLocaleDateString('vi-VN');
-
-let savedConfig = {};
-try { savedConfig = JSON.parse(localStorage.getItem('GAU_CFG')) || {}; } catch(e) {}
-
-let branchConfig = {
-    models: ['bida','cafe','karaoke','homestay'], 
-    bidaNormal: 50000, bidaPeak: 60000, bidaStart: '18:00', bidaEnd: '23:00',
-    karaNormal: 100000, karaPeak: 150000, karaStart: '18:00', karaEnd: '23:00',
-    homeNight: 300000, homeHour: 50000, homeDayStart: '06:00', homeNightStart: '18:00',
-    bankId: 'MB', bankAcc: '', bankName: '', cloudLimit: 5000, autoPrint: false, phone: '', webhookUrl: '',
-    showInventory: true, showAttendance: true,
-    ...savedConfig
-};
-
-const MODEL_NAMES = {
-    'bida':     { icon: 'circle', name: 'Khu Bida', hasTimer: true },
-    'cafe':     { icon: 'mug-hot', name: 'Cafe/Ăn', hasTimer: false },
-    'karaoke':  { icon: 'microphone', name: 'Karaoke', hasTimer: true },
-    'homestay': { icon: 'home', name: 'Homestay', hasTimer: true },
-    'hotel':    { icon: 'hotel', name: 'Khách sạn', hasTimer: true },
-    'motel':    { icon: 'bed', name: 'Nhà nghỉ', hasTimer: true }
-};
-
-// --- CORE UI FUNCTIONS ---
 function showToast(msg, type='success') {
     const el = document.createElement('div');
     el.className = 'toast';
@@ -716,6 +856,51 @@ function gModal(title, desc, type, icon='info-circle', iconColor='var(--p3)', op
     });
 }
 
+// --- SYSTEM GLOBALS ---
+const sbUrl = localStorage.getItem('GAU_SB_URL') || '';
+const sbKey = localStorage.getItem('GAU_SB_KEY') || '';
+let sbClient = null;
+let currentUser = null;
+let currentBranch = 'S1';
+let currentZoneFilter = 'bida';
+let activeTableId = null;
+let activeTableName = '';
+let activeTableType = '';
+let activeTableStartTime = null; 
+let localCarts = {};
+let currentPayContext = null;
+let tickerInterval = null;
+let activeSessionsCache = {}; 
+let chartInstance = null;
+let modelChartInstance = null;
+let reportPeriod = 'day';
+let lastLoadedDay = new Date().toLocaleDateString('vi-VN');
+
+let tablesDataCache = [];
+let isSwitchingZone = false;
+
+let savedConfig = {};
+try { savedConfig = JSON.parse(localStorage.getItem('GAU_CFG')) || {}; } catch(e) {}
+
+let branchConfig = {
+    models: ['bida','cafe','karaoke','homestay'], 
+    bidaNormal: 50000, bidaPeak: 60000, bidaStart: '18:00', bidaEnd: '23:00',
+    karaNormal: 100000, karaPeak: 150000, karaStart: '18:00', karaEnd: '23:00',
+    homeNight: 300000, homeHour: 50000, homeDayStart: '06:00', homeNightStart: '18:00',
+    bankId: 'MB', bankAcc: '', bankName: '', cloudLimit: 5000, autoPrint: false, phone: '', webhookUrl: '',
+    showInventory: true, showAttendance: true,
+    ...savedConfig
+};
+
+const MODEL_NAMES = {
+    'bida':     { icon: 'circle', name: 'Khu Bida', hasTimer: true },
+    'cafe':     { icon: 'mug-hot', name: 'Cafe/Ăn', hasTimer: false },
+    'karaoke':  { icon: 'microphone', name: 'Karaoke', hasTimer: true },
+    'homestay': { icon: 'home', name: 'Homestay', hasTimer: true },
+    'hotel':    { icon: 'hotel', name: 'Khách sạn', hasTimer: true },
+    'motel':    { icon: 'bed', name: 'Nhà nghỉ', hasTimer: true }
+};
+
 function bindNavEvents() {
     document.querySelectorAll('.nav-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -741,14 +926,33 @@ function applyFeatureToggles() {
     if(attTab) attTab.style.display = branchConfig.showAttendance ? 'flex' : 'none';
 }
 
+function toggleMobileMenuForm() {
+    let form = document.getElementById('menu-form-box');
+    if(form) {
+        if(form.classList.contains('show')) form.classList.remove('show');
+        else form.classList.add('show');
+    }
+}
+
 // --- BOOTSTRAP ---
 window.onload = () => {
     bindNavEvents();
+
+    const supabaseReady = typeof window.supabase !== 'undefined' && window.supabase.createClient;
+
     if (!sbUrl || !sbKey) {
-        document.getElementById('setup-screen').style.display = 'flex'; 
+        document.getElementById('setup-screen').style.display = 'flex';
+    } else if (!supabaseReady) {
+        document.getElementById('setup-screen').style.display = 'flex';
+        setTimeout(() => showToast("⚠️ Không tải được Supabase SDK. Kiểm tra mạng Internet!", "error"), 500);
     } else {
-        sbClient = window.supabase.createClient(sbUrl, sbKey);
-        document.getElementById('login-screen').style.display = 'flex';
+        try {
+            sbClient = window.supabase.createClient(sbUrl, sbKey);
+            document.getElementById('login-screen').style.display = 'flex';
+        } catch(e) {
+            document.getElementById('setup-screen').style.display = 'flex';
+            setTimeout(() => showToast("Lỗi kết nối Supabase. Thiết lập lại!", "error"), 500);
+        }
     }
 };
 
@@ -773,11 +977,17 @@ async function handleLogin() {
     if(!user || !pass) return showToast("Nhập đủ tài khoản!", "error");
     
     try {
-        const { data, error } = await sbClient.from('users').select('*, branches(name)').eq('username', user).single();
+        const { data, error } = await sbClient.from('users').select('*, branches(*)').eq('username', user).single();
         if (error || data.password !== pass) return showToast("Sai tài khoản/mật khẩu!", "error");
         
         currentUser = data;
         currentBranch = data.branch_id;
+        
+        if (currentUser.branches && currentUser.branches.models) {
+            branchConfig.models = currentUser.branches.models.split(',').map(s=>s.trim()).filter(Boolean);
+            if (branchConfig.models.length === 0) branchConfig.models = ['bida','cafe'];
+        }
+        
         document.getElementById('display-branch-name').innerText = currentUser.branches?.name || 'Chi Nhánh';
         
         document.getElementById('login-screen').style.display = 'none';
@@ -809,8 +1019,10 @@ function initApp() {
     applyFeatureToggles();
     loadCartsFromSession();
     renderZoneTabs();
-    // Tải song song để nhanh hơn
-    Promise.all([loadTables(), loadMenu(), loadInventory(), loadDebts()]);
+    loadTables();
+    loadMenu();
+    loadInventory();
+    loadDebts();
     
     if(currentUser.role !== 'staff') filterReport('day');
     checkCloudLimit();
@@ -819,7 +1031,6 @@ function initApp() {
     tickerInterval = setInterval(ticker, 1000);
 }
 
-let _lastTickMin = -1;
 function ticker() {
     const nowStr = new Date().toLocaleDateString('vi-VN');
     if(nowStr !== lastLoadedDay) {
@@ -838,9 +1049,12 @@ function ticker() {
         let diff = Math.max(60, Math.floor((new Date() - new Date(activeTableStartTime)) / 1000));
         let el = document.getElementById('bida-duration');
         if(el) el.innerText = `${Math.floor(diff/3600)}h ${Math.floor((diff%3600)/60).toString().padStart(2,'0')}p ${Math.floor(diff%60).toString().padStart(2,'0')}s`;
-        // Chỉ render lại cart mỗi phút (tránh spam DOM mỗi giây)
-        let curMin = Math.floor(diff / 60);
-        if(curMin !== _lastTickMin) { _lastTickMin = curMin; renderCart(); }
+        
+        let c = localCarts[activeTableId] || [];
+        let tot = c.reduce((s,i) => s + i.price*i.qty, 0);
+        let tf = calcTimeFee(activeTableStartTime, new Date().toISOString(), activeTableType, 'night');
+        let totalEl = document.getElementById('drawer-total');
+        if(totalEl) totalEl.innerHTML = fmtMoney(tot+tf) + 'đ' + ` <br><span style="font-size:1rem;color:var(--t2);font-weight:normal">(Dịch vụ: ${fmtMoney(tf)}đ)</span>`;
     }
 }
 
@@ -866,55 +1080,83 @@ function renderZoneTabs() {
     document.getElementById('dynamic-zone-tabs').innerHTML = allowedModels.map((mod, i) => {
         if(!MODEL_NAMES[mod]) return '';
         if(i===0) currentZoneFilter = mod;
-        return `<button class="zone-tab ${i===0?'active':''}" onclick="switchZone('${mod}',this)"><i class="fas fa-${MODEL_NAMES[mod].icon}"></i> ${MODEL_NAMES[mod].name}</button>`;
+        return `<button class="zone-tab ${i===0?'active':''}" data-zone="${mod}" onclick="switchZone('${mod}',this)"><i class="fas fa-${MODEL_NAMES[mod].icon}"></i> ${MODEL_NAMES[mod].name}</button>`;
     }).join('');
 }
 
 function switchZone(z, btn) {
+    if (isSwitchingZone && currentZoneFilter === z) return;
     currentZoneFilter = z;
-    document.querySelectorAll('.zone-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.zone-tab').forEach(b => { b.classList.remove('active'); b.disabled = true; });
     btn.classList.add('active');
-    loadTables();
+    renderTablesFromCache();
+    requestAnimationFrame(() => {
+        document.querySelectorAll('.zone-tab').forEach(b => b.disabled = false);
+    });
 }
 
 async function loadTables() {
+    const grid = document.getElementById('tables-container');
+    if (!grid) return;
+    
+    if (tablesDataCache.length === 0) {
+        grid.innerHTML = Array(6).fill('<div class="skel-card"></div>').join('');
+    } else {
+        grid.classList.add('loading');
+    }
     try {
-        const [tablesRes, sessionsRes] = await Promise.all([
-            sbClient.from('zones_tables').select('*').eq('branch_id', currentBranch),
-            sbClient.from('billiards_sessions').select('table_id,start_time').is('end_time', null)
-        ]);
-        const tables = tablesRes.data;
-        const sessions = sessionsRes.data;
-        if(!tables) return;
+        const { data: tables } = await sbClient.from('zones_tables').select('*').eq('branch_id', currentBranch);
+        if(!tables) { grid.classList.remove('loading'); return; }
         
+        const { data: sessions } = await sbClient.from('billiards_sessions').select('table_id,start_time').is('end_time', null);
         activeSessionsCache = {};
-        if(sessions) sessions.forEach(s => activeSessionsCache[s.table_id] = s.start_time);
+        if(sessions) sessions.forEach(s => {
+            activeSessionsCache[s.table_id] = s.start_time;
+        });
         
-        document.getElementById('tables-container').innerHTML = tables.filter(t => t.type === currentZoneFilter).map(t => {
-            let stCls = t.status === 'đang dùng' ? 'busy' : (t.status === 'đặt trước' ? 'booked' : '');
-            let stTxt = t.status === 'đang dùng' ? '⚡ Đang dùng' : (t.status === 'đặt trước' ? '🕒 Đã Đặt Trước' : '— Trống —');
-            let bookInfo = t.status === 'đặt trước' ? `<div class="tbl-book-info">${t.book_time} - ${t.book_name}</div>` : '';
-            return `
-                <div class="table-card ${stCls}" onclick="openTable('${t.id}','${t.type}','${t.status}','${t.table_name.replace(/'/g,"\\'")}')">
-                    <div class="tbl-icon"><i class="fas fa-${MODEL_NAMES[t.type].icon}"></i></div>
-                    <div class="tbl-name">${t.table_name}</div>
-                    <div class="tbl-status">${stTxt}</div>
-                    ${bookInfo}
-                    <div class="tbl-time" id="timer-tbl-${t.id}"></div>
-                </div>`;
-        }).join('');
-        ticker();
+        tablesDataCache = tables;
+        renderTablesFromCache();
     } catch(e) {
         showToast("Lỗi tải bàn!", "error");
+        grid.classList.remove('loading');
     }
+}
+
+function renderTablesFromCache() {
+    const grid = document.getElementById('tables-container');
+    if (!grid) return;
+    const filtered = tablesDataCache.filter(t => t.type === currentZoneFilter);
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div style="color:var(--t2);text-align:center;padding:40px;grid-column:1/-1;"><i class="fas fa-inbox" style="font-size:40px;opacity:0.3;display:block;margin-bottom:12px;"></i>Chưa có bàn/phòng nào. Bấm "+ Thêm" để tạo!</div>';
+        grid.classList.remove('loading');
+        return;
+    }
+    grid.innerHTML = filtered.map(t => {
+        let stCls = t.status === 'đang dùng' ? 'busy' : (t.status === 'đặt trước' ? 'booked' : '');
+        let stTxt = t.status === 'đang dùng' ? '⚡ Đang dùng' : (t.status === 'đặt trước' ? '🕒 Đã Đặt Trước' : '— Trống —');
+        let bookInfo = t.status === 'đặt trước' ? `<div class="tbl-book-info">${t.book_time} - ${t.book_name}</div>` : '';
+        return `
+            <div class="table-card ${stCls}" onclick="openTable('${t.id}','${t.type}','${t.status}','${t.table_name.replace(/'/g,"\\'")}')">
+                <div class="tbl-icon"><i class="fas fa-${MODEL_NAMES[t.type]?.icon||'circle'}"></i></div>
+                <div class="tbl-name">${t.table_name}</div>
+                <div class="tbl-status">${stTxt}</div>
+                ${bookInfo}
+                <div class="tbl-time" id="timer-tbl-${t.id}"></div>
+            </div>`;
+    }).join('');
+    grid.classList.remove('loading');
+    ticker();
 }
 
 async function addTable() {
     const n = await gModal("Thêm Bàn/Phòng", "Nhập tên:", "prompt", "layer-group");
     if(n){
-        await sbClient.from('zones_tables').insert([{branch_id: currentBranch, table_name: n, type: currentZoneFilter}]);
+        const {data, error} = await sbClient.from('zones_tables').insert([{branch_id: currentBranch, table_name: n, type: currentZoneFilter}]).select();
+        if(!error && data) {
+            tablesDataCache.push(data[0]);
+            renderTablesFromCache();
+        }
         showToast("Đã thêm thành công!");
-        loadTables();
     }
 }
 
@@ -931,39 +1173,67 @@ async function deleteCurrentTable() {
             await sbClient.from('orders').delete().eq('table_id', activeTableId);
         }
         await sbClient.from('zones_tables').delete().eq('id', activeTableId);
+        await sbClient.from('pending_orders').delete().eq('table_id', activeTableId);
+        
         delete localCarts[activeTableId];
         saveCartsToSession();
+        
+        tablesDataCache = tablesDataCache.filter(t => t.id !== activeTableId);
+        delete activeSessionsCache[activeTableId];
+        
         closeDrawer();
-        loadTables();
+        renderTablesFromCache();
         showToast("Đã xóa!");
     }
 }
 
+// FIX: TÍNH NĂNG CHUYỂN BÀN THÔNG MINH - AUTO CHUYỂN TAB
 async function transferCurrentTable() {
-    const {data} = await sbClient.from('zones_tables').select('id, table_name').eq('branch_id', currentBranch).eq('type', activeTableType).eq('status', 'trống');
-    if(!data || data.length === 0) return showToast("Không có bàn trống!", "error");
+    const {data} = await sbClient.from('zones_tables').select('id, table_name, type').eq('branch_id', currentBranch).eq('status', 'trống');
+    if(!data || data.length === 0) return showToast("Không có bàn trống nào trong quán!", "error");
     
-    const opt = data.map(t=>({value:t.id, label:t.table_name}));
+    const opt = data.map(t => ({
+        value: t.id, 
+        label: t.table_name + ' (' + (MODEL_NAMES[t.type]?.name || t.type) + ')'
+    }));
+    
     const targetId = await gModal("Chuyển bàn", `Chuyển "${activeTableName}" tới:`, "select", "exchange-alt", "var(--p3)", opt);
     
     if(targetId) {
-        if(MODEL_NAMES[activeTableType].hasTimer) {
-            const {data:ses} = await sbClient.from('billiards_sessions').select('id').eq('table_id', activeTableId).is('end_time', null).order('start_time',{ascending:false}).limit(1);
-            if(ses && ses.length > 0) {
-                await sbClient.from('billiards_sessions').update({table_id:targetId}).eq('id',ses[0].id);
-            }
+        showToast("Đang chuyển bàn...", "info");
+        const targetTable = data.find(t => t.id === targetId);
+        
+        const {data:ses} = await sbClient.from('billiards_sessions').select('id, start_time').eq('table_id', activeTableId).is('end_time', null).order('start_time',{ascending:false}).limit(1);
+        
+        if(ses && ses.length > 0) {
+            await sbClient.from('billiards_sessions').update({table_id: targetId}).eq('id', ses[0].id);
+        } else if (MODEL_NAMES[targetTable.type].hasTimer) {
+            await sbClient.from('billiards_sessions').insert([{table_id: targetId, start_time: new Date().toISOString()}]);
         }
+        
+        await sbClient.from('pending_orders').update({table_id: targetId}).eq('table_id', activeTableId);
+        
+        await sbClient.from('zones_tables').update({status:'trống', book_name: null, book_phone: null, book_time: null}).eq('id', activeTableId);
+        await sbClient.from('zones_tables').update({status:'đang dùng'}).eq('id', targetId);
         
         localCarts[targetId] = localCarts[activeTableId] || [];
         delete localCarts[activeTableId];
         saveCartsToSession();
         
-        await sbClient.from('zones_tables').update({status:'trống'}).eq('id',activeTableId);
-        await sbClient.from('zones_tables').update({status:'đang dùng'}).eq('id',targetId);
-        
         closeDrawer();
-        loadTables();
-        showToast("Đã chuyển bàn!");
+        
+        // Bắt buộc load lại toàn bộ từ Database để đảm bảo dữ liệu chuẩn 100%
+        await loadTables();
+        
+        // NẾU BÀN ĐÍCH KHÁC TAB HIỆN TẠI -> TỰ ĐỘNG CHUYỂN TAB SANG ĐÓ LUÔN!
+        if (targetTable.type !== currentZoneFilter) {
+            let targetTabBtn = document.querySelector(`.zone-tab[data-zone="${targetTable.type}"]`);
+            if (targetTabBtn) {
+                switchZone(targetTable.type, targetTabBtn);
+            }
+        }
+        
+        showToast("Đã chuyển bàn thành công!");
     }
 }
 
@@ -998,12 +1268,14 @@ async function confirmBooking() {
         
         if (error) throw error;
         
+        let tbl = tablesDataCache.find(t => t.id === activeTableId);
+        if(tbl) { tbl.status = 'đặt trước'; tbl.book_name = n; tbl.book_phone = p; tbl.book_time = t; }
+        
         showToast("Đã ghi nhận Đặt Trước!");
         closeBookingModal();
-        loadTables();
+        renderTablesFromCache();
     } catch(e) {
-        showToast("Lỗi Booking (Chưa thêm cột vào Supabase?)", "error");
-        console.error(e);
+        showToast("Lỗi Booking", "error");
     }
 }
 
@@ -1015,13 +1287,17 @@ async function cancelBooking(id) {
             book_phone: null,
             book_time: null
         }).eq('id', id);
+        
+        let tbl = tablesDataCache.find(t => t.id === id);
+        if(tbl) { tbl.status = 'trống'; tbl.book_name = null; tbl.book_phone = null; tbl.book_time = null; }
+        
         showToast("Đã Hủy Đặt Trước!");
         closeDrawer();
-        loadTables();
+        renderTablesFromCache();
     }
 }
 
-// --- DRAWER & CART ---
+// --- DRAWER & SYNC CART ---
 function viewFullCart() {
     const qm = document.getElementById('quick-menu-container');
     const cw = document.getElementById('cart-container-wrap');
@@ -1036,6 +1312,43 @@ function viewFullCart() {
     }
 }
 
+async function fetchCloudCart(tableId) {
+    try {
+        const { data } = await sbClient.from('pending_orders').select('*').eq('table_id', tableId);
+        if (data) {
+            localCarts[tableId] = data.map(d => ({
+                id: d.menu_id,
+                name: d.item_name,
+                price: parseFloat(d.price),
+                qty: parseInt(d.qty)
+            }));
+            saveCartsToSession();
+            renderCart();
+        }
+    } catch(e) {
+        console.warn("Chưa có bảng pending_orders.");
+    }
+}
+
+async function syncCartToCloud(tableId) {
+    let c = localCarts[tableId] || [];
+    try {
+        await sbClient.from('pending_orders').delete().eq('table_id', tableId);
+        if (c.length > 0) {
+            let inserts = c.map(i => ({
+                branch_id: currentBranch,
+                table_id: tableId,
+                menu_id: i.id,
+                item_name: i.name,
+                price: i.price,
+                qty: i.qty,
+                status: 'pending'
+            }));
+            await sbClient.from('pending_orders').insert(inserts);
+        }
+    } catch(e) {}
+}
+
 async function openTable(id, type, status, name) {
     activeTableId = id; activeTableType = type; activeTableName = name;
     document.getElementById('drawer-title').innerText = name;
@@ -1043,17 +1356,17 @@ async function openTable(id, type, status, name) {
     document.getElementById('quick-menu-container').style.display='flex';
     document.getElementById('cart-container-wrap').style.maxHeight='65%';
     
-    if(!localCarts[id]) localCarts[id] = [];
-    
+    // Mở nhanh giao diện
     document.getElementById('drawer').classList.add('open');
     document.getElementById('drawer-overlay').classList.add('open');
+    document.getElementById('order-items').innerHTML = '<div style="text-align:center;padding:20px;color:var(--t2)"><i class="fas fa-spinner fa-spin"></i> Đang tải...</div>';
     
     const acts = document.getElementById('drawer-actions');
 
     if (status === 'trống') {
         if(MODEL_NAMES[type].hasTimer) {
             acts.innerHTML = `
-                <button class="btn btn-outline" style="flex:1;border-radius:20px;" onclick="openBookingModal()"><i class="fas fa-calendar-alt"></i> KHÁCH ĐẶT TRƯỚC</button>
+                <button class="btn btn-outline" style="flex:1;border-radius:20px;" onclick="openBookingModal()"><i class="fas fa-calendar-alt"></i> KHÁCH ĐẶT</button>
                 <button class="btn btn-p" style="flex:1.5;border-radius:20px;" onclick="startTable('${id}','${type}')"><i class="fas fa-play"></i> MỞ BÀN/PHÒNG</button>
             `;
         } else {
@@ -1074,7 +1387,6 @@ async function openTable(id, type, status, name) {
         document.getElementById('bida-info').style.display = 'none';
     }
     else {
-        // Đang dùng
         acts.innerHTML = `
             <button class="btn btn-outline" style="flex:1;border-radius:20px;" onclick="viewFullCart()"><i class="fas fa-shopping-cart"></i> Giỏ Hàng</button>
             <button class="btn btn-g" style="flex:2;border-radius:20px;" onclick="openPaymentModal('${id}','${type}')">THANH TOÁN</button>
@@ -1094,6 +1406,10 @@ async function openTable(id, type, status, name) {
     }
     
     renderQuickMenu();
+    
+    // Tải dữ liệu giỏ hàng ngầm rồi đắp vào
+    await fetchCloudCart(id);
+    if(!localCarts[id]) localCarts[id] = [];
     renderCart();
 }
 
@@ -1116,11 +1432,15 @@ async function startTable(id, type) {
     
     if(MODEL_NAMES[type].hasTimer) {
         await sbClient.from('billiards_sessions').insert([{table_id: id, start_time: new Date().toISOString()}]);
+        activeSessionsCache[id] = new Date().toISOString();
     }
+    
+    let tbl = tablesDataCache.find(t => t.id === id);
+    if(tbl) { tbl.status = 'đang dùng'; tbl.book_name = null; tbl.book_phone = null; tbl.book_time = null; }
     
     saveCartsToSession();
     closeDrawer();
-    loadTables();
+    renderTablesFromCache();
     showToast("Đã mở thành công!");
 }
 
@@ -1135,18 +1455,8 @@ function searchMenu() {
     });
 }
 
-let _menuCache = null;
-let _menuCacheBranch = null;
-
 async function renderQuickMenu() {
-    // Dùng cache nếu cùng chi nhánh
-    let data = _menuCache;
-    if(!data || _menuCacheBranch !== currentBranch) {
-        const res = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
-        data = res.data;
-        _menuCache = data;
-        _menuCacheBranch = currentBranch;
-    }
+    const {data} = await sbClient.from('menu').select('*').eq('branch_id', currentBranch);
     if(!data || data.length === 0) {
         return document.getElementById('quick-menu').innerHTML = '<div style="color:var(--t2);text-align:center;grid-column:1/-1;">Chưa có món.</div>';
     }
@@ -1209,34 +1519,43 @@ async function addToCart(id, name, price) {
     saveCartsToSession();
     renderCart();
     
+    await syncCartToCloud(activeTableId);
+    
     sbClient.from('zones_tables').select('status').eq('id',activeTableId).single().then(({data}) => {
         if(data && data.status === 'trống') {
-            sbClient.from('zones_tables').update({status:'đang dùng'}).eq('id',activeTableId).then(()=>loadTables());
+            sbClient.from('zones_tables').update({status:'đang dùng'}).eq('id',activeTableId).then(() => {
+                let tbl = tablesDataCache.find(t => t.id === activeTableId);
+                if(tbl) tbl.status = 'đang dùng';
+                renderTablesFromCache();
+            });
         }
     });
-    
-    // Ghi vào bảng bếp (bỏ qua nếu db chưa có)
-    sbClient.from('pending_orders').insert([{branch_id: currentBranch, table_id: activeTableId, item_name: name, price: price, qty: 1, status: 'pending'}]).then(()=>{});
 }
 
-function updateQty(id, d) {
+async function updateQty(id, d) {
     let c = localCarts[activeTableId];
     let i = c.find(x => x.id === id);
     if(i) {
         i.qty += d;
         if(i.qty <= 0) localCarts[activeTableId] = c.filter(x => x.id !== id);
+        
         saveCartsToSession();
         renderCart(); 
         
+        await syncCartToCloud(activeTableId);
+        
         if(localCarts[activeTableId].length === 0 && !MODEL_NAMES[activeTableType].hasTimer) {
-            sbClient.from('zones_tables').update({status:'trống'}).eq('id',activeTableId).then(()=>loadTables());
+            sbClient.from('zones_tables').update({status:'trống'}).eq('id',activeTableId).then(() => {
+                let tbl = tablesDataCache.find(t => t.id === activeTableId);
+                if(tbl) tbl.status = 'trống';
+                renderTablesFromCache();
+            });
         }
     }
 }
 
 
 // --- CORE LOGIC TÍNH GIỜ THEO TỪNG MÔ HÌNH ---
-
 function getPeakSecs(st, ed, pS, pE) {
     if(!pS || !pE) return 0;
     let [sh,sm] = pS.split(':').map(Number);
@@ -1284,9 +1603,15 @@ function calcTimeFee(start, end, type, mode='night') {
     
     let pS, pE, rN, rP;
     if (type === 'karaoke') {
-        pS = branchConfig.karaStart; pE = branchConfig.karaEnd; rN = branchConfig.karaNormal; rP = branchConfig.karaPeak;
+        pS = branchConfig.karaStart;
+        pE = branchConfig.karaEnd;
+        rN = branchConfig.karaNormal;
+        rP = branchConfig.karaPeak;
     } else {
-        pS = branchConfig.bidaStart; pE = branchConfig.bidaEnd; rN = branchConfig.bidaNormal; rP = branchConfig.bidaPeak;
+        pS = branchConfig.bidaStart;
+        pE = branchConfig.bidaEnd;
+        rN = branchConfig.bidaNormal;
+        rP = branchConfig.bidaPeak;
     }
     
     let peakS = getPeakSecs(start, end, pS, pE);
@@ -1317,7 +1642,6 @@ function renderCart() {
                             </div>
                         </div>`; 
               }).join('');
-        container.scrollTop = container.scrollHeight;
     }
           
     let countEl = document.getElementById('cart-item-count');
@@ -1367,8 +1691,7 @@ async function openPaymentModal(tId, type) {
 function applyDiscount() {
     if(!currentPayContext) return;
     
-    let modeEl = document.getElementById('pay-homestay-mode');
-    let mode = modeEl ? modeEl.value : 'night';
+    let mode = document.getElementById('pay-homestay-mode').value;
     if(['homestay','hotel','motel'].includes(currentPayContext.type) && currentPayContext.start) {
         currentPayContext.tf = calcTimeFee(currentPayContext.start, new Date().toISOString(), currentPayContext.type, mode);
     }
@@ -1406,25 +1729,29 @@ function closePaymentModal() {
     document.getElementById('payment-modal').classList.remove('active');
 }
 
+// FIX: THANH TOÁN XONG ÉP TRẢ VỀ BÀN TRỐNG TỨC THÌ
 async function processCheckout(btn) {
     let org = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> XỬ LÝ...';
     btn.disabled = true;
     
     let { tId, type, total, method, cart, tf, base, disc, sur } = currentPayContext;
-    showToast("Đang đồng bộ Cloud...", "info");
+    showToast("Đang xử lý thanh toán...", "info");
 
     try {
         if (method === 'debt') {
             let n = document.getElementById('debt-customer-name').value.trim();
             if(!n) throw new Error("Vui lòng nhập Tên khách nợ!");
+            
+            let orderDetailsPack = JSON.stringify(cart);
             const {error} = await sbClient.from('debts').insert([{
                 branch_id: currentBranch,
                 customer_name: n,
                 customer_phone: document.getElementById('debt-phone').value,
-                amount: total
+                amount: total,
+                order_details: orderDetailsPack
             }]);
-            if(error) throw new Error("Lỗi DB Nợ: " + error.message);
+            if(error) throw new Error("Lỗi DB Nợ");
         }
 
         if (MODEL_NAMES[type].hasTimer) {
@@ -1445,38 +1772,28 @@ async function processCheckout(btn) {
                 model_type: type
             }]).select();
             
-            if(errO) throw new Error("Lỗi ghi Order: " + errO.message);
-            
             if (ord && cart.length > 0) {
-                // Batch insert tất cả order_details 1 lần
-                const detailRows = cart.map(item => ({order_id: ord[0].id, menu_id: item.id, quantity: item.qty}));
-                await sbClient.from('order_details').insert(detailRows);
-
-                // Trừ tồn kho song song
-                const invUpdates = [];
                 for (let item of cart) {
-                    const {data:recs} = await sbClient.from('recipes').select('ingredient_id,quantity_required').eq('menu_id', item.id);
-                    if(recs && recs.length > 0) {
+                    await sbClient.from('order_details').insert([{order_id:ord[0].id, menu_id:item.id, quantity:item.qty}]);
+                    const {data:recs} = await sbClient.from('recipes').select('*').eq('menu_id',item.id);
+                    if(recs) {
                         for(let r of recs) {
-                            invUpdates.push(
-                                sbClient.from('inventory').select('quantity,id').eq('id',r.ingredient_id).single()
-                                    .then(({data:inv}) => {
-                                        if(inv) return sbClient.from('inventory').update({quantity: inv.quantity-(r.quantity_required*item.qty)}).eq('id',r.ingredient_id);
-                                    })
-                            );
+                            const {data:i} = await sbClient.from('inventory').select('quantity').eq('id',r.ingredient_id).single();
+                            if(i) await sbClient.from('inventory').update({quantity: i.quantity-(r.quantity_required*item.qty)}).eq('id',r.ingredient_id);
                         }
                     }
                 }
-                if(invUpdates.length > 0) await Promise.all(invUpdates);
             }
         }
 
-        await sbClient.from('zones_tables').update({
-            status: 'trống',
-            book_name: null,
-            book_phone: null,
-            book_time: null
-        }).eq('id',tId);
+        // ÉP CẬP NHẬT TRẠNG THÁI BÀN TRỐNG TRÊN DATABASE
+        await sbClient.from('zones_tables').update({ status: 'trống', book_name: null, book_phone: null, book_time: null }).eq('id',tId);
+        await sbClient.from('pending_orders').delete().eq('table_id', tId);
+        
+        // ÉP CẬP NHẬT LOCAL CACHE ĐỂ GIAO DIỆN ĐỔI MÀU XÁM NGAY LẬP TỨC
+        let tbl = tablesDataCache.find(t => t.id === tId);
+        if(tbl) { tbl.status = 'trống'; tbl.book_name = null; tbl.book_phone = null; tbl.book_time = null; }
+        delete activeSessionsCache[tId];
 
         if(document.getElementById('cb-print-bill').checked) {
             let bn = document.getElementById('display-branch-name').innerText;
@@ -1499,8 +1816,13 @@ async function processCheckout(btn) {
         saveCartsToSession();
         closePaymentModal();
         closeDrawer();
-        // Reload song song
-        Promise.all([loadTables(), loadInventory(), loadDebts()]);
+        
+        // TẢI LẠI BÀN ĐỂ FIX LỖI KHÔNG ĐỔI MÀU
+        renderTablesFromCache();
+        loadTables();
+        loadInventory();
+        loadDebts();
+        
         if(currentUser.role !== 'staff') filterReport(reportPeriod);
         checkCloudLimit();
         
@@ -1508,7 +1830,7 @@ async function processCheckout(btn) {
         if(method !== 'debt') confetti({particleCount:150, spread:80});
         
     } catch(e) { 
-        showToast(e.message, "error"); 
+        showToast("Lỗi thanh toán", "error"); 
     } finally {
         btn.innerHTML = org;
         btn.disabled = false;
@@ -1526,15 +1848,18 @@ async function loadDebts() {
         if(listEl) {
             listEl.innerHTML = (!data || data.length === 0)
                 ? '<tr><td colspan="4" style="text-align:center;color:var(--t2);padding:20px;">Trống! Không có nợ.</td></tr>'
-                : data.map(d => `
+                : data.map(d => {
+                    let safeCartBase64 = d.order_details ? btoa(unescape(encodeURIComponent(d.order_details))) : '';
+                    return `
                     <tr>
                         <td style="padding:15px"><b>${d.customer_name}</b><br><span style="font-size:0.8rem;color:var(--t2)">${d.customer_phone||'N/A'}</span></td>
                         <td style="padding:15px;color:var(--red);font-weight:bold">${fmtMoney(d.amount)}đ</td>
                         <td style="padding:15px;color:var(--t2)">${new Date(d.created_at).toLocaleDateString('vi-VN')}</td>
                         <td style="padding:15px;text-align:right">
-                            <button class="btn btn-g" style="padding:8px 12px;font-size:0.85rem;border-radius:8px" onclick="payDebt('${d.id}','${d.customer_name}',${d.amount})"><i class="fas fa-check-circle"></i> Thu Nợ</button>
+                            <button class="btn btn-g" style="padding:8px 12px;font-size:0.85rem;border-radius:8px" onclick="payDebt('${d.id}','${d.customer_name}',${d.amount}, '${safeCartBase64}')"><i class="fas fa-check-circle"></i> Thu Nợ</button>
                         </td>
-                    </tr>`).join('');
+                    </tr>`;
+                }).join('');
         }
     } catch(e) {
         let listEl = document.getElementById('debt-list');
@@ -1542,7 +1867,7 @@ async function loadDebts() {
     }
 }
 
-async function payDebt(id, name, amt) {
+async function payDebt(id, name, amt, safeCartBase64) {
     const ans = await gModal("Thu Nợ", `Gạch nợ ${fmtMoney(amt)}đ cho ${name}?`, "confirm", "money-bill-wave", "var(--green3)");
     if(ans) {
         await sbClient.from('debts').delete().eq('id', id);
@@ -1550,17 +1875,35 @@ async function payDebt(id, name, amt) {
         showToast("Đã gạch nợ!");
         confetti();
         
-        const p = await gModal("In Hóa Đơn", "Sếp có muốn in Hóa đơn Thu nợ không?", "confirm", "print", "var(--p3)");
+        const p = await gModal("In Hóa Đơn", "Sếp có muốn in Hóa đơn Thu nợ (Chi tiết món) không?", "confirm", "print", "var(--p3)");
         if(p) {
             let bn = document.getElementById('display-branch-name').innerText;
+            let cartListHtml = '';
+            
+            try {
+                if (safeCartBase64) {
+                    let cartArr = JSON.parse(decodeURIComponent(escape(atob(safeCartBase64))));
+                    if (cartArr.length > 0) {
+                        cartListHtml += `<hr><p style="text-align:left;font-size:12px;margin:5px 0;"><b>Chi tiết đã dùng:</b></p><table style="width:100%;font-size:12px;border-collapse:collapse;margin-bottom:10px;">`;
+                        cartArr.forEach(i => {
+                            cartListHtml += `<tr><td style="padding:2px 0;border-bottom:1px dotted #ccc">${i.name}</td><td style="text-align:center;border-bottom:1px dotted #ccc">x${i.qty}</td><td style="text-align:right;border-bottom:1px dotted #ccc">${fmtMoney(i.price*i.qty)}</td></tr>`;
+                        });
+                        cartListHtml += `</table>`;
+                    }
+                }
+            } catch(err) { console.log("Không có chi tiết món"); }
+
             document.getElementById('print-area').innerHTML = `
                 <div style="font-family:sans-serif;padding:20px;border:1px solid #000;max-width:300px;margin:0 auto;">
-                    <h2 style="text-align:center;margin:0">${bn}</h2>
-                    <h3 style="text-align:center;margin:10px 0;border-bottom:1px solid #000;padding-bottom:10px;">PHIẾU THU NỢ</h3>
-                    <p>Khách hàng: <b>${name}</b></p>
-                    <p>Số tiền trả: <b style="font-size:18px">${fmtMoney(amt)} VNĐ</b></p>
-                    <p>Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
-                    <p style="text-align:center;margin-top:20px;font-style:italic">Ký nhận</p>
+                    <h2 style="text-align:center;margin:0;font-size:20px;">${bn}</h2>
+                    <h3 style="text-align:center;margin:10px 0;border-bottom:1px solid #000;padding-bottom:10px;font-size:16px;">BIÊN LAI THU NỢ</h3>
+                    <p style="font-size:14px;margin-bottom:5px;">Khách hàng: <b>${name}</b></p>
+                    <p style="font-size:14px;margin-bottom:5px;">Thời gian: ${new Date().toLocaleString('vi-VN')}</p>
+                    ${cartListHtml}
+                    <hr>
+                    <p style="text-align:left;margin-top:10px;">Tổng tiền đã thu:</p>
+                    <p style="text-align:right;"><b style="font-size:22px">${fmtMoney(amt)} VNĐ</b></p>
+                    <p style="text-align:center;margin-top:20px;font-style:italic;font-size:12px;">Ký nhận</p>
                 </div>`;
             window.print();
         }
@@ -1683,6 +2026,7 @@ async function renderItemsSoldToday(iso) {
     rt.innerHTML = Object.keys(m).sort((a,b)=>m[b]-m[a]).map(n=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);"><span>${n}</span><b style="color:var(--gold3)">${m[n]}</b></div>`).join('')||'<div style="color:var(--t2);">Trống.</div>';
 }
 
+// FIX: KHÔNG LOAD LẠI TRANG SAU KHI DỌN RÁC ĐỂ TRÁNH VĂNG TÀI KHOẢN
 async function confirmExportAndClear() {
     const ans = await gModal("Xuất Báo Cáo", `Hệ thống sẽ tải File Excel chuyên sâu và tự động dọn sạch dữ liệu kỳ [${reportPeriod}] trên Cloud để giải phóng dung lượng. Bấm Đồng Ý để tiếp tục!`, "confirm", "download", "var(--green3)");
     if(ans) {
@@ -1786,14 +2130,20 @@ async function confirmExportAndClear() {
         else if(currentUser.role !== 'master') delQ = delQ.eq('branch_id', currentBranch);
         
         await delQ;
-        showToast("Dọn dẹp thành công! Đang tải lại...", "success");
-        setTimeout(() => location.reload(), 1500);
+        showToast("Dọn dẹp thành công! Đang làm mới...", "success");
+        
+        // Tự động vẽ lại biểu đồ cho trắng sạch thay vì reload lại nguyên cái web
+        filterReport(reportPeriod);
     }
 }
 
 async function exportDebtExcel() {
     try {
-        const {data} = await sbClient.from('debts').select('*').eq('branch_id', currentBranch).order('created_at',{ascending:false});
+        let q = sbClient.from('debts').select('*').order('created_at',{ascending:false});
+        if(currentUser.role !== 'master') q = q.eq('branch_id', currentBranch);
+        
+        const {data} = await q;
+        
         if(!data || data.length === 0) return showToast("Không có nợ!", "error");
         
         const m = [
@@ -1817,7 +2167,7 @@ async function exportDebtExcel() {
     }
 }
 
-// --- MỞ RỘNG (CHẤM CÔNG, MENU, INVENTORY) ---
+// --- MỞ RỘNG ---
 function doCheckIn() {
     if(!navigator.geolocation) return showToast("Bật GPS!", "error");
     navigator.geolocation.getCurrentPosition(async pos => {
@@ -1852,7 +2202,6 @@ async function deleteMenu(id, n) {
         await sbClient.from('order_details').delete().eq('menu_id', id);
         await sbClient.from('recipes').delete().eq('menu_id', id);
         await sbClient.from('menu').delete().eq('id', id);
-        _menuCache = null; // Xóa cache
         showToast("Đã xóa!");
         loadMenu();
     }
@@ -1882,13 +2231,14 @@ async function saveComplexMenu() {
     
     if(arr.length === 0) return showToast("Nhập giá!", "error");
     await sbClient.from('menu').insert(arr);
-    _menuCache = null; // Xóa cache để load lại
     showToast("Đã lưu!");
     loadMenu();
     
     document.getElementById('m-name').value = '';
     document.getElementById('m-unit').value = '';
     document.getElementById('variant-inputs-area').innerHTML = `<div class="variant-input-row" style="display:flex;gap:10px;margin-bottom:10px;"><input type="text" class="text-input v-label" placeholder="Size" style="flex:1;margin-bottom:0;"><input type="text" class="text-input v-price currency-input" placeholder="Giá" style="flex:1;margin-bottom:0;"><button class="btn btn-danger" style="padding:0 15px;" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button></div>`;
+    let form = document.getElementById('menu-form-box');
+    if(form && form.classList.contains('show')) form.classList.remove('show');
 }
 
 async function loadInventory() {
@@ -1914,14 +2264,6 @@ async function addInventoryItem() {
 
 // --- SETTINGS & ADMIN ---
 async function loadSettings() {
-    const ids = [
-        'cfg-bida-normal', 'cfg-bida-peak', 'cfg-bida-start', 'cfg-bida-end',
-        'cfg-kara-normal', 'cfg-kara-peak', 'cfg-kara-start', 'cfg-kara-end',
-        'cfg-home-night', 'cfg-home-hour', 'cfg-home-day-start', 'cfg-home-night-start',
-        'cfg-bank-id', 'cfg-bank-acc', 'cfg-bank-name', 'cfg-phone'
-    ];
-    
-    // Check elements exist before setting to avoid null errors
     if(document.getElementById('cfg-bida-normal')) {
         document.getElementById('cfg-bida-normal').value = fmtMoney(branchConfig.bidaNormal);
         document.getElementById('cfg-bida-peak').value = fmtMoney(branchConfig.bidaPeak);
@@ -1942,6 +2284,7 @@ async function loadSettings() {
         document.getElementById('cfg-bank-acc').value = branchConfig.bankAcc;
         document.getElementById('cfg-bank-name').value = branchConfig.bankName;
         document.getElementById('cfg-phone').value = branchConfig.phone;
+        document.getElementById('cfg-autoprint').value = branchConfig.autoPrint ? "true" : "false";
         
         const m = branchConfig.models || [];
         document.getElementById('cfg-bida-group').style.display = m.includes('bida') ? 'block' : 'none';
@@ -2086,6 +2429,7 @@ async function confirmLogout() {
         location.reload();
     }
 }
+
 </script>
 </body>
 </html>
