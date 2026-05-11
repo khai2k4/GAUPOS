@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">  <meta name="gau-pos-build" content="2026-05-11-password-change">
   <title>GẤU POS • V86 SUPREME</title>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -857,6 +857,476 @@
       .clock-part { min-width: 25px; padding: 5px 3px; }
       .clock-date { display: none; }
     }
+
+    /* Final mobile shell override: lock the app to one phone viewport and stop header overflow. */
+    @media (max-width: 900px) {
+      html, body { width: 100%; max-width: 100%; overflow-x: hidden !important; }
+      #main-app { width: 100vw; max-width: 100vw; overflow: hidden; }
+      .wrapper {
+        width: 100vw;
+        max-width: 100vw;
+        min-width: 0;
+        height: calc(100dvh - 64px - env(safe-area-inset-bottom));
+        overflow: hidden;
+      }
+      .header {
+        height: auto !important;
+        min-height: 96px;
+        flex: 0 0 auto !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(108px, auto);
+        align-items: start !important;
+        gap: 8px !important;
+        padding: calc(8px + env(safe-area-inset-top)) 8px 8px !important;
+        overflow: hidden !important;
+      }
+      .header > div:first-child { min-width: 0; max-width: 100%; }
+      .branch-title {
+        max-width: none !important;
+        min-width: 0;
+        font-size: 1.08rem;
+        line-height: 1.05;
+        align-items: flex-start;
+        overflow-wrap: anywhere;
+      }
+      .branch-title #display-branch-name { display: block; max-width: 100%; }
+      .header > div:last-child {
+        min-width: 0;
+        max-width: 46vw;
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-end !important;
+        gap: 5px !important;
+        flex-wrap: nowrap !important;
+        overflow: hidden;
+      }
+      .clock-box { min-width: 0 !important; width: auto !important; max-width: 136px; padding: 5px 6px !important; }
+      .clock-box .clock { gap: 2px !important; font-size: .76rem !important; justify-content: flex-end !important; }
+      .clock-part { min-width: 24px !important; padding: 5px 3px !important; border-radius: 6px !important; }
+      .clock-sep { margin: 0 1px !important; }
+      .clock-date { display: none !important; }
+      #sync-pill, #header-user-name {
+        max-width: 100%;
+        min-height: 28px;
+        padding: 5px 8px;
+        font-size: .68rem;
+      }
+      #sync-pill span, #header-user-name span {
+        max-width: 92px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .view { padding: 10px 8px 12px !important; }
+      .toolbar { gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+      #pos .tabs { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; overflow: visible; }
+      .zone-tab { width: 100%; padding: 10px 8px; text-align: center; }
+      #pos .toolbar > div:last-child {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px !important;
+      }
+      #pos .toolbar > div:last-child .btn { width: 100%; min-width: 0; padding-inline: 8px; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 10px !important; }
+      .table-card { min-height: 150px; padding: 14px 8px; }
+      .sidebar { height: calc(64px + env(safe-area-inset-bottom)) !important; }
+    }
+    @media (max-width: 430px) {
+      .header { grid-template-columns: minmax(0, 1fr) 118px; min-height: 100px; }
+      .header > div:last-child { max-width: 118px; }
+      #sync-pill span, #header-user-name span { max-width: 74px; }
+      .clock-box { max-width: 112px; }
+      .clock-part { min-width: 22px !important; padding: 5px 2px !important; }
+      .table-name { font-size: .96rem; }
+    }
+    /* Cart mobile readability: explicit areas so item names never disappear. */
+    @media (max-width: 900px) {
+      .cart-line {
+        grid-template-columns: 38px minmax(0, 1fr) auto !important;
+        grid-template-areas:
+          "note name name"
+          "qty qty total"
+          "input input input";
+        gap: 9px 10px !important;
+        align-items: start !important;
+        padding: 12px 0 !important;
+      }
+      .cart-line .cart-note-toggle {
+        grid-area: note;
+        align-self: start;
+        justify-self: start;
+      }
+      .cart-line .cart-item-main {
+        grid-area: name !important;
+        min-width: 0 !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      .cart-line .cart-item-main b {
+        display: block !important;
+        max-width: 100% !important;
+        color: var(--txt) !important;
+        white-space: normal !important;
+        word-break: normal !important;
+        overflow-wrap: break-word !important;
+        line-height: 1.18 !important;
+        font-size: 1rem !important;
+      }
+      .cart-line .cart-item-main .hint {
+        display: block !important;
+        line-height: 1.25 !important;
+        margin-top: 2px;
+      }
+      .cart-line .qty {
+        grid-area: qty;
+        justify-self: start;
+        align-self: center;
+      }
+      .cart-line .line-total {
+        grid-area: total;
+        justify-self: end;
+        align-self: center;
+        display: flex !important;
+        gap: 8px !important;
+      }
+      .cart-line .line-total b {
+        min-width: 82px !important;
+        text-align: right !important;
+      }
+      .cart-line .cart-note {
+        grid-area: input;
+        grid-column: auto !important;
+      }
+    }
+    /* Mobile header cleanup: title first, compact status row below. */
+    @media (max-width: 900px) {
+      .header {
+        min-height: 84px !important;
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-auto-rows: auto;
+        align-items: stretch !important;
+        gap: 7px !important;
+        padding: calc(7px + env(safe-area-inset-top)) 10px 8px !important;
+      }
+      .header > div:first-child {
+        width: 100%;
+        min-width: 0;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 8px !important;
+      }
+      .branch-title {
+        min-width: 0;
+        max-width: 100% !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+        font-size: clamp(1.08rem, 5.4vw, 1.38rem) !important;
+        line-height: 1.04 !important;
+      }
+      .branch-title #display-branch-name {
+        display: -webkit-box !important;
+        max-width: calc(100vw - 66px) !important;
+        overflow: hidden !important;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+      }
+      #btn-edit-branch {
+        width: 28px !important;
+        height: 28px !important;
+        min-width: 28px !important;
+        min-height: 28px !important;
+        padding: 0 !important;
+        flex: 0 0 28px;
+      }
+      .header-sub { display: none !important; }
+      .header > div:last-child {
+        width: 100% !important;
+        max-width: none !important;
+        min-width: 0 !important;
+        display: grid !important;
+        grid-template-columns: 94px minmax(0, 1fr) minmax(0, 1fr) !important;
+        align-items: center !important;
+        gap: 6px !important;
+        overflow: hidden !important;
+      }
+      .clock-box {
+        width: 94px !important;
+        max-width: 94px !important;
+        min-width: 94px !important;
+        padding: 4px 5px !important;
+        border-radius: 8px !important;
+      }
+      .clock-box .clock {
+        gap: 1px !important;
+        justify-content: center !important;
+        font-size: .72rem !important;
+      }
+      .clock-part {
+        min-width: 21px !important;
+        padding: 4px 2px !important;
+        border-radius: 5px !important;
+      }
+      .clock-sep { margin: 0 !important; opacity: .75; }
+      .clock-date { display: none !important; }
+      #sync-pill,
+      #header-user-name {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        min-height: 28px !important;
+        height: 28px !important;
+        padding: 4px 7px !important;
+        justify-content: center !important;
+        font-size: .66rem !important;
+        border-radius: 999px !important;
+      }
+      #sync-pill i,
+      #header-user-name i { flex: 0 0 auto; }
+      #sync-pill span,
+      #header-user-name span {
+        min-width: 0 !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+      #mobile-logout-btn { display: none !important; }
+    }
+    @media (max-width: 360px) {
+      .header > div:last-child { grid-template-columns: 86px minmax(0, 1fr) minmax(0, 1fr) !important; gap: 5px !important; }
+      .clock-box { width: 86px !important; max-width: 86px !important; min-width: 86px !important; }
+      .clock-part { min-width: 19px !important; padding-inline: 1px !important; }
+      #sync-pill, #header-user-name { font-size: .62rem !important; padding-inline: 5px !important; }
+    }
+    /* Settings phone-style UI: grouped rows, larger touch targets, cleaner mobile layout. */
+    #settings { background: transparent; }
+    #settings .toolbar {
+      align-items: center;
+      padding: 2px 0 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #settings .toolbar h2 {
+      font-size: 1.22rem;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+    #settings .toolbar .hint { max-width: 680px; }
+    #settings .split-grid {
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, .65fr);
+      align-items: start;
+      gap: 18px;
+    }
+    #settings .split-grid > .panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: 0;
+    }
+    #settings .settings-section,
+    #settings .split-grid > .panel:nth-child(2) {
+      overflow: hidden;
+      margin-bottom: 13px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--r);
+      background: rgba(15,23,42,.72);
+      box-shadow: 0 10px 26px rgba(0,0,0,.18);
+    }
+    #settings .settings-section h3,
+    #settings .split-grid > .panel:nth-child(2) > h3 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding: 13px 14px;
+      color: var(--txt) !important;
+      font-size: .98rem;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.035);
+    }
+    #settings .settings-section h3 i,
+    #settings .split-grid > .panel:nth-child(2) > h3 i {
+      width: 28px;
+      height: 28px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--gold2);
+      background: rgba(245,158,11,.13);
+      border: 1px solid rgba(245,158,11,.26);
+      flex: 0 0 28px;
+    }
+    #settings .form-grid {
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0;
+    }
+    #settings .form-grid > div,
+    #settings .settings-section > .field-label,
+    #settings .settings-section > .text-input,
+    #settings .settings-section > .select-input,
+    #settings .settings-section > .hint,
+    #settings .settings-section > .btn,
+    #settings #master-branch-control {
+      margin-left: 14px;
+      margin-right: 14px;
+    }
+    #settings .form-grid > div {
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    #settings .field-label {
+      margin: 0 0 7px;
+      color: #aeb8ca;
+      font-size: .72rem;
+      letter-spacing: 0;
+    }
+    #settings .text-input,
+    #settings .select-input {
+      min-height: 44px;
+      margin-bottom: 0;
+      background: rgba(8,13,24,.82);
+      border-color: rgba(255,255,255,.14);
+    }
+    #settings .settings-section > .field-label { display: block; margin-top: 12px; }
+    #settings .settings-section > .text-input,
+    #settings .settings-section > .select-input { margin-bottom: 12px; }
+    #settings .settings-section > .hint {
+      margin-top: 2px;
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      background: rgba(34,211,238,.07);
+      border: 1px solid rgba(34,211,238,.16);
+    }
+    #settings .check-row {
+      min-height: 48px;
+      margin: 0;
+      padding: 12px 14px;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      color: var(--txt);
+      font-size: .92rem;
+    }
+    #settings .check-row input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+      width: 48px;
+      height: 28px;
+      flex: 0 0 48px;
+      margin-left: auto;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      background: rgba(100,116,139,.36);
+      cursor: pointer;
+      transition: background .18s var(--spring), border-color .18s var(--spring);
+    }
+    #settings .check-row input[type="checkbox"]::before {
+      content: "";
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+      transition: transform .18s var(--spring), background .18s var(--spring);
+    }
+    #settings .check-row input[type="checkbox"]:checked {
+      background: rgba(16,185,129,.88);
+      border-color: rgba(110,231,183,.55);
+    }
+    #settings .check-row input[type="checkbox"]:checked::before {
+      transform: translateX(20px);
+      background: #fff;
+    }
+    #settings .settings-section > .btn,
+    #settings .split-grid > .panel:nth-child(2) > .btn,
+    #settings .split-grid > .panel:nth-child(2) > input,
+    #settings .split-grid > .panel:nth-child(2) > select {
+      width: calc(100% - 28px) !important;
+      margin-left: 14px;
+      margin-right: 14px;
+      margin-bottom: 10px;
+    }
+    #settings .split-grid > .panel:nth-child(2) > input:first-of-type { margin-top: 14px; }
+    #settings .split-grid > .panel:nth-child(2) hr { margin: 10px 14px 12px !important; }
+    #settings .split-grid > .panel:nth-child(2) h4 { margin: 0 14px 10px !important; }
+    #settings #users-list { padding: 0 14px 14px; }
+    #settings #users-list > div { margin-bottom: 8px !important; }
+    #settings button[onclick="saveBranchSettings()"] {
+      min-height: 48px;
+      margin-top: 4px;
+      box-shadow: 0 14px 30px rgba(124,58,237,.22);
+    }
+    @media (max-width: 900px) {
+      #settings { padding-top: 0 !important; }
+      #settings .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        margin: -10px -8px 12px !important;
+        padding: 10px 10px 9px !important;
+        background: rgba(7,10,18,.96);
+        backdrop-filter: blur(12px);
+      }
+      #settings .toolbar h2 { font-size: 1.14rem; }
+      #settings .toolbar .hint { display: none; }
+      #settings .toolbar #settings-db-status { width: 100%; justify-content: center; }
+      #settings .split-grid { display: block !important; }
+      #settings .settings-section,
+      #settings .split-grid > .panel:nth-child(2) {
+        margin-bottom: 10px;
+        border-radius: 8px;
+        box-shadow: none;
+      }
+      #settings .settings-section h3,
+      #settings .split-grid > .panel:nth-child(2) > h3 {
+        padding: 12px;
+        font-size: .94rem;
+      }
+      #settings .form-grid { display: block; }
+      #settings .form-grid > div {
+        margin: 0 12px;
+        padding: 10px 0;
+      }
+      #settings .settings-section > .field-label,
+      #settings .settings-section > .text-input,
+      #settings .settings-section > .select-input,
+      #settings .settings-section > .hint,
+      #settings .settings-section > .btn,
+      #settings #master-branch-control {
+        margin-left: 12px;
+        margin-right: 12px;
+      }
+      #settings .text-input,
+      #settings .select-input { min-height: 46px; font-size: 16px; }
+      #settings .check-row { padding: 13px 12px; }
+      #settings .settings-section > .btn,
+      #settings .split-grid > .panel:nth-child(2) > .btn,
+      #settings .split-grid > .panel:nth-child(2) > input,
+      #settings .split-grid > .panel:nth-child(2) > select {
+        width: calc(100% - 24px) !important;
+        margin-left: 12px;
+        margin-right: 12px;
+      }
+      #settings #users-list { padding: 0 12px 12px; }
+      #settings button[onclick="saveBranchSettings()"] {
+        position: sticky;
+        bottom: calc(70px + env(safe-area-inset-bottom));
+        z-index: 25;
+        width: 100% !important;
+        margin: 10px 0 0 !important;
+        border-radius: 8px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -914,7 +1384,7 @@
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
           <div class="clock-box"><div id="header-clock" class="clock">--:--:--</div><div id="header-date" class="clock-date"></div></div>
           <div id="sync-pill" class="pill warn"><i class="fas fa-cloud"></i><span>Đang nối</span></div>
-          <div id="header-user-name" class="pill ok"><i class="fas fa-user-shield"></i><span>...</span></div>
+          <div id="header-user-name" class="pill ok" title="Doi mat khau" onclick="openChangePasswordModal()" style="cursor:pointer"><i class="fas fa-user-shield"></i><span>...</span></div>
           <button id="mobile-logout-btn" class="btn btn-outline btn-icon" title="Thoát" onclick="confirmLogout()"><i class="fas fa-right-from-bracket"></i></button>
         </div>
       </header>
@@ -1296,6 +1766,9 @@
   <script>
     "use strict";
 
+    const APP_BUILD = document.querySelector('meta[name="gau-pos-build"]')?.content || "dev";
+    let appUpdateWatchStarted = false;
+
     const MODEL_NAMES = {
       bida: { icon: "circle", name: "Khu Bida", hasTimer: true },
       cafe: { icon: "mug-hot", name: "Cafe/Ăn", hasTimer: false },
@@ -1390,6 +1863,49 @@
       }
     });
 
+
+    function appUpdateCheckUrl() {
+      const u = new URL(location.href);
+      u.searchParams.set("_gau_check", String(Date.now()));
+      return u.toString();
+    }
+    function appUpdateReloadUrl(remoteBuild) {
+      const u = new URL(location.href);
+      u.searchParams.delete("_gau_check");
+      u.searchParams.set("_appv", remoteBuild || String(Date.now()));
+      return u.toString();
+    }
+    function extractAppBuild(html) {
+      const m = String(html || "").match(/<meta\s+name=["']gau-pos-build["']\s+content=["']([^"']+)["']/i);
+      return m ? m[1] : "";
+    }
+    function notifyAppUpdateReload() {
+      try {
+        if ($("cust-toast")) customerToast("Có bản cập nhật, app sẽ tải lại...");
+        else if ($("toast-container")) showToast("Có bản cập nhật, app sẽ tự tải lại...", "info");
+      } catch {}
+    }
+    function startAppUpdateWatcher() {
+      if (appUpdateWatchStarted || !/^https?:$/.test(location.protocol)) return;
+      appUpdateWatchStarted = true;
+      let reloading = false;
+      const check = async () => {
+        if (reloading || document.hidden) return;
+        try {
+          const res = await fetch(appUpdateCheckUrl(), { cache: "no-store" });
+          if (!res.ok) return;
+          const remoteBuild = extractAppBuild(await res.text());
+          if (remoteBuild && remoteBuild !== APP_BUILD) {
+            reloading = true;
+            notifyAppUpdateReload();
+            setTimeout(() => location.replace(appUpdateReloadUrl(remoteBuild)), 1200);
+          }
+        } catch {}
+      };
+      setTimeout(check, 15000);
+      setInterval(check, 90000);
+      document.addEventListener("visibilitychange", () => { if (!document.hidden) check(); });
+    }
     const customerPageState = { sb: null, branchId: "", tableId: "", token: "", table: null, menu: [], cart: [], groups: {}, byId: {}, lastCartItemId: null, scrollCart: false };
 
     function isCustomerOrderRoute() {
@@ -1772,6 +2288,8 @@
       setInterval(loadCustomerTable, 10000);
     }
     function boot() {
+      installCasualBrowserGuard();
+      startAppUpdateWatcher();
       if (isCustomerOrderRoute()) { bootCustomerOrderMode(); return; }
       bindNavEvents();
       addVariantInput();
@@ -1887,11 +2405,167 @@
       });
     }
 
+
+    function showSecurityGuardToast() {
+      const msg = "Trinh duyet luon co the xem ma web; bao mat that nam o Supabase RLS/RPC.";
+      if (!window.__gauSecurityGuardWarned) {
+        window.__gauSecurityGuardWarned = true;
+        console.warn(msg);
+      }
+    }
+    function installCasualBrowserGuard() {
+      if (window.__gauSecurityGuardInstalled) return;
+      window.__gauSecurityGuardInstalled = true;
+      document.addEventListener("keydown", ev => {
+        const k = String(ev.key || "").toLowerCase();
+        const blocked = ev.key === "F12" ||
+          (ev.ctrlKey && ev.shiftKey && ["i", "j", "c"].includes(k)) ||
+          (ev.metaKey && ev.altKey && ["i", "j", "c"].includes(k)) ||
+          (ev.ctrlKey && k === "u");
+        if (!blocked) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        showSecurityGuardToast();
+      }, true);
+    }    function decodeJwtPayload(token) {
+      try {
+        const part = String(token || "").split(".")[1];
+        if (!part) return null;
+        const b64 = part.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(part.length / 4) * 4, "=");
+        return JSON.parse(atob(b64));
+      } catch { return null; }
+    }
+    function isLikelyServiceRoleKey(key) {
+      const payload = decodeJwtPayload(key);
+      return String(payload?.role || "").toLowerCase() === "service_role";
+    }
+    function bytesToHex(buf) {
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+    async function sha256Hex(text) {
+      if (!window.crypto?.subtle) throw new Error("Thiet bi khong ho tro WebCrypto.");
+      const data = new TextEncoder().encode(String(text));
+      return bytesToHex(await crypto.subtle.digest("SHA-256", data));
+    }
+    function makePasswordSalt() {
+      const bytes = new Uint8Array(16);
+      if (window.crypto?.getRandomValues) crypto.getRandomValues(bytes);
+      else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
+      return bytesToHex(bytes);
+    }
+    async function hashPasswordWithSalt(password, salt) {
+      return sha256Hex(`${salt}:${password}`);
+    }
+    async function verifyUserPassword(row, password) {
+      const hash = String(row?.password_hash || "").trim();
+      const salt = String(row?.password_salt || "").trim();
+      if (hash && salt && window.crypto?.subtle) return (await hashPasswordWithSalt(password, salt)) === hash;
+      return String(row?.password ?? "").trim() === String(password);
+    }
+    async function buildSecureUserRow(username, password, role, branchId) {
+      if (!window.crypto?.subtle) return { username, password, role, branch_id: branchId };
+      const salt = makePasswordSalt();
+      return {
+        username,
+        password: "",
+        password_hash: await hashPasswordWithSalt(password, salt),
+        password_salt: salt,
+        password_changed_at: new Date().toISOString(),
+        role,
+        branch_id: branchId
+      };
+    }
+
+    function openChangePasswordModal() {
+      if (!currentUser?.id) return showToast("Chua dang nhap.", "warn");
+      const overlay = $("g-modal");
+      $("g-modal-icon").innerHTML = '<i class="fas fa-key" style="color:var(--gold2)"></i>';
+      $("g-modal-title").textContent = "Doi mat khau";
+      $("g-modal-input").style.display = "none";
+      $("g-modal-select").style.display = "none";
+      $("g-modal-desc").innerHTML = `
+        <div style="text-align:left">
+          <label class="field-label">Mat khau hien tai</label>
+          <input id="chg-pass-old" type="password" class="text-input" autocomplete="current-password" placeholder="Nhap mat khau dang dung">
+          <label class="field-label">Mat khau moi</label>
+          <input id="chg-pass-new" type="password" class="text-input" autocomplete="new-password" placeholder="Toi thieu 6 ky tu">
+          <label class="field-label">Nhap lai mat khau moi</label>
+          <input id="chg-pass-confirm" type="password" class="text-input" autocomplete="new-password" placeholder="Nhap lai cho chac">
+          <p class="hint">Mat khau moi se duoc luu dang hash. Neu app bao thieu RPC, hay chay SQL doi mat khau trong Supabase.</p>
+        </div>`;
+      $("g-modal-actions").innerHTML = `
+        <button class="btn btn-outline" onclick="document.getElementById('g-modal').classList.remove('active')">Huy</button>
+        <button id="btn-change-password" class="btn btn-p" onclick="changeMyPassword(this)"><i class="fas fa-save"></i> Doi mat khau</button>
+      `;
+      overlay.classList.add("active");
+      setTimeout(() => $("chg-pass-old")?.focus(), 80);
+    }
+
+    async function changeMyPassword(btn) {
+      if (!currentUser?.id) return showToast("Chua dang nhap.", "error");
+      const oldPass = $("chg-pass-old")?.value || "";
+      const newPass = $("chg-pass-new")?.value || "";
+      const confirmPass = $("chg-pass-confirm")?.value || "";
+      if (!oldPass || !newPass || !confirmPass) return showToast("Nhap du mat khau hien tai va mat khau moi.", "error");
+      if (newPass.length < 6) return showToast("Mat khau moi toi thieu 6 ky tu.", "error");
+      if (newPass !== confirmPass) return showToast("Mat khau moi nhap lai chua khop.", "error");
+      if (!window.crypto?.subtle) return showToast("Trinh duyet nay khong ho tro ma hoa mat khau.", "error");
+
+      const oldHtml = btn?.innerHTML;
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Dang doi...'; }
+      try {
+        const saltRes = await sbClient.rpc("gau_get_password_salt", { p_user_id: Number(currentUser.id) });
+        if (saltRes.error) throw saltRes.error;
+        const saltRow = Array.isArray(saltRes.data) ? saltRes.data[0] : saltRes.data;
+        const oldSalt = String(saltRow?.password_salt || "");
+        const oldHash = oldSalt ? await hashPasswordWithSalt(oldPass, oldSalt) : "";
+        const newSalt = makePasswordSalt();
+        const newHash = await hashPasswordWithSalt(newPass, newSalt);
+        const { data, error } = await sbClient.rpc("gau_change_password", {
+          p_user_id: Number(currentUser.id),
+          p_old_password: oldPass,
+          p_old_hash: oldHash,
+          p_new_hash: newHash,
+          p_new_salt: newSalt
+        });
+        if (error) throw error;
+        const ok = data === true || data === "true" || data?.ok === true;
+        if (!ok) return showToast("Mat khau hien tai khong dung.", "error");
+        $("g-modal").classList.remove("active");
+        showToast("Da doi mat khau. Lan dang nhap sau hay dung mat khau moi.", "success");
+      } catch (err) {
+        const msg = String(err?.message || err || "");
+        if (/gau_get_password_salt|gau_change_password|schema cache|function|PGRST202|404/i.test(msg)) {
+          showToast("Chua co RPC doi mat khau. Hay chay SQL doi mat khau trong Supabase.", "error");
+        } else {
+          showToast("Khong doi duoc mat khau: " + msg, "error");
+        }
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = oldHtml; }
+      }
+    }
+    async function loginViaSecureRpc(username, password) {
+      try {
+        const { data, error } = await sbClient.rpc("gau_login", { p_username: username, p_password: password });
+        if (error) {
+          const msg = `${error.code || ""} ${error.message || ""}`;
+          if (/gau_login|schema cache|function|PGRST202|404/i.test(msg)) return { supported: false, row: null };
+          console.warn("Secure login RPC warning", error);
+          return { supported: false, row: null };
+        }
+        const row = Array.isArray(data) ? data[0] : data;
+        return { supported: true, row: row || null };
+      } catch (err) {
+        console.warn("Secure login RPC unavailable", err);
+        return { supported: false, row: null };
+      }
+    }
     function handleSetup() {
       const url = $("setup-url").value.trim();
       const key = $("setup-key").value.trim();
       if (!url || !key) return showToast("Nhập đủ URL và Anon Key.", "error");
-      localStorage.setItem("GAU_SB_URL", url);
+            if (isLikelyServiceRoleKey(key)) return showToast("Khong duoc nhap Service Role Key vao web. Hay dung Anon Key; Service Role chi de trong Edge Function/server.", "error");
+localStorage.setItem("GAU_SB_URL", url);
       localStorage.setItem("GAU_SB_KEY", key);
       showToast("Đã lưu kết nối. Đang tải lại...");
       setTimeout(() => location.reload(), 650);
@@ -1906,35 +2580,52 @@
       const btn = $("login-btn");
       const user = $("login-user").value.trim();
       const pass = $("login-pass").value.trim();
-      if (!user || !pass) return showToast("Nhập đủ tài khoản và mật khẩu.", "error");
+      if (!user || !pass) return showToast("Nhap du tai khoan va mat khau.", "error");
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang vào...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Dang vao...';
       try {
-        const { data, error } = await sbClient
-          .from("users")
-          .select("*")
-          .ilike("username", user)
-          .maybeSingle();
-
-        if (error) {
-          console.error("Login users query error", error);
-          showToast("Không đọc được bảng users: " + (error.message || error.code || "lỗi Supabase"), "error");
-          return;
-        }
-        if (!data) {
-          showToast("Không thấy tài khoản này trong bảng users.", "error");
-          return;
-        }
-        if (String(data.password ?? "").trim() !== pass) {
-          showToast("Mật khẩu không khớp với bảng users.", "error");
-          return;
-        }
-
+        let data = null;
         let branch = null;
-        if (data.branch_id) {
-          const brRes = await sbClient.from("branches").select("*").eq("id", data.branch_id).maybeSingle();
-          if (brRes.error) console.warn("Login branches query warning", brRes.error);
-          else branch = brRes.data;
+        const secureLogin = await loginViaSecureRpc(user, pass);
+
+        if (secureLogin.supported) {
+          if (!secureLogin.row) {
+            showToast("Sai tai khoan hoac mat khau.", "error");
+            return;
+          }
+          data = {
+            id: secureLogin.row.id,
+            username: secureLogin.row.username,
+            role: secureLogin.row.role,
+            branch_id: secureLogin.row.branch_id
+          };
+          branch = { id: secureLogin.row.branch_id, name: secureLogin.row.branch_name };
+        } else {
+          const { data: userRow, error } = await sbClient
+            .from("users")
+            .select("*")
+            .ilike("username", user)
+            .maybeSingle();
+
+          if (error) {
+            console.error("Login users query error", error);
+            showToast("Khong doc duoc bang users: " + (error.message || error.code || "loi Supabase"), "error");
+            return;
+          }
+          if (!userRow) {
+            showToast("Khong thay tai khoan nay trong bang users.", "error");
+            return;
+          }
+          if (!await verifyUserPassword(userRow, pass)) {
+            showToast("Sai tai khoan hoac mat khau.", "error");
+            return;
+          }
+          data = userRow;
+          if (data.branch_id) {
+            const brRes = await sbClient.from("branches").select("*").eq("id", data.branch_id).maybeSingle();
+            if (brRes.error) console.warn("Login branches query warning", brRes.error);
+            else branch = brRes.data;
+          }
         }
 
         currentUser = { ...data, branches: branch };
@@ -1945,13 +2636,13 @@
         showScreen(null);
         $("main-app").style.display = "flex";
         await initApp();
-        showToast("Đăng nhập thành công.");
+        showToast("Dang nhap thanh cong.");
       } catch (err) {
         console.error(err);
-        showToast("Lỗi đăng nhập: " + (err.message || "kiểm tra Supabase URL/Anon Key"), "error");
+        showToast("Loi dang nhap: " + (err.message || "kiem tra Supabase URL/Anon Key"), "error");
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-rocket"></i> Vào hệ thống';
+        btn.innerHTML = '<i class="fas fa-rocket"></i> Vao he thong';
       }
     }
     function bindNavEvents() {
@@ -2304,8 +2995,8 @@
       } catch {}
     }
 
-    function getPendingKitchenItems(tableId = activeTableId) {
-      const cart = localCarts[tableId] || [];
+    function getPendingKitchenItems(tableId = activeTableId, cartOverride = null) {
+      const cart = cartOverride || localCarts[tableId] || [];
       return cart.map(i => {
         const sent = Number(sentKitchenQty[`${tableId}:${i.id}`]) || 0;
         const qty = Math.max(0, Number(i.qty || 0) - sent);
@@ -2315,6 +3006,52 @@
 
     function getSentKitchenQtyTotal(tableId = activeTableId) {
       return (localCarts[tableId] || []).reduce((sum, i) => sum + Math.min(Number(i.qty) || 0, Number(sentKitchenQty[`${tableId}:${i.id}`]) || 0), 0);
+    }
+
+    function mergeSentKitchenQtyFromKitchenRows(rows, tableId = activeTableId) {
+      if (!tableId) return false;
+      const counts = {};
+      (rows || []).forEach(row => {
+        if (String(row.table_id) !== String(tableId)) return;
+        const items = Array.isArray(row.items) ? row.items : safeJSON(row.items, []);
+        items.forEach(i => {
+          const menuId = i.menu_id ?? i.id;
+          if (menuId == null || menuId === "") return;
+          const key = `${tableId}:${menuId}`;
+          counts[key] = (counts[key] || 0) + (Number(i.qty) || 1);
+        });
+      });
+      let changed = false;
+      Object.entries(counts).forEach(([key, qty]) => {
+        const nextQty = Math.max(Number(sentKitchenQty[key]) || 0, Number(qty) || 0);
+        if (nextQty !== (Number(sentKitchenQty[key]) || 0)) {
+          sentKitchenQty[key] = nextQty;
+          changed = true;
+        }
+      });
+      if (changed) saveCartsToSession();
+      return changed;
+    }
+
+    async function refreshSentKitchenQtyFromKitchenOrders(tableId = activeTableId, { render = true } = {}) {
+      if (!tableId || !sbClient) return false;
+      try {
+        const { data, error } = await sbClient.from("kitchen_orders")
+          .select("table_id,status,items")
+          .eq("branch_id", currentBranch)
+          .eq("table_id", tableId)
+          .in("status", ["sent", "cooking", "done", "cancelled"]);
+        if (error) throw error;
+        const changed = mergeSentKitchenQtyFromKitchenRows(data || [], tableId);
+        if (render && changed && String(activeTableId) === String(tableId)) {
+          renderCart();
+          renderDrawerActions();
+        }
+        return changed;
+      } catch (err) {
+        console.warn("Không đối chiếu được trạng thái bếp", err);
+        return false;
+      }
     }
     function cartKitchenKey(tableId, item) {
       const menuId = item?.menu_id ?? item?.id ?? "";
@@ -2571,6 +3308,7 @@
             }
             return row;
           }).filter(i => i.qty > 0);
+          await refreshSentKitchenQtyFromKitchenOrders(tableId, { render: false });
           saveCartsToSession();
           renderCart();
           renderDrawerActions();
@@ -2611,7 +3349,7 @@
               item_name: i.name,
               price: i.price,
               qty: i.qty,
-              status: "draft"
+              status: (Number(sentKitchenQty[`${tableId}:${i.id}`]) || 0) >= (Number(i.qty) || 0) ? "sent" : "draft"
             })));
           }
         } catch (err) {
@@ -2933,7 +3671,7 @@
     }
 
     function saveLocalKitchenOrders() {
-      localKitchenOrders = (localKitchenOrders || []).filter(o => ["sent", "cooking", "done"].includes(o.status)).slice(0, 120);
+      localKitchenOrders = (localKitchenOrders || []).filter(o => ["sent", "cooking", "done", "cancelled"].includes(o.status)).slice(0, 120);
       localStorage.setItem("GAU_KITCHEN_LOCAL_V86", JSON.stringify(localKitchenOrders));
     }
 
@@ -3109,7 +3847,7 @@
           return `
             <div class="cart-line">
               <button class="cart-note-toggle ${i.note ? "has-note" : ""}" title="Ghi chú món" onclick="openCartNotesMode('${attr(i.id)}')"><i class="fas fa-note-sticky"></i></button>
-              <div>
+              <div class="cart-item-main">
                 <b>${esc(i.name)}</b>
                 <div class="hint">${fmtMoney(i.price)}đ ${sent ? `• đã vào bếp ${sent}` : ""} ${pending ? `• chờ gửi bếp ${pending}` : ""}</div>
                 ${i.note ? `<span class="item-note"><i class="fas fa-note-sticky"></i> ${esc(i.note)}</span>` : ""}
@@ -3151,6 +3889,7 @@
 
     async function sendKitchen() {
       if (!activeTableId) return;
+      await refreshSentKitchenQtyFromKitchenOrders(activeTableId, { render: false });
       const cart = localCarts[activeTableId] || [];
       const deltaItems = cart.map(i => {
         const sent = Number(sentKitchenQty[`${activeTableId}:${i.id}`]) || 0;
@@ -3170,6 +3909,7 @@
         const { error } = await sbClient.from("kitchen_orders").insert([ticket]);
         if (error) throw error;
         deltaItems.forEach(i => { sentKitchenQty[`${activeTableId}:${i.menu_id}`] = (sentKitchenQty[`${activeTableId}:${i.menu_id}`] || 0) + i.qty; });
+        try { await sbClient.from("pending_orders").update({ status: "sent" }).eq("branch_id", currentBranch).eq("table_id", activeTableId).in("menu_id", deltaItems.map(i => i.menu_id)); } catch {}
         saveCartsToSession();
         renderCart();
         renderDrawerActions();
@@ -3202,7 +3942,7 @@
       let kitchenError = null;
 
       try {
-        const { data, error } = await sbClient.from("kitchen_orders").select("*").eq("branch_id", currentBranch).in("status", ["sent", "cooking", "done"]).order("created_at", { ascending: false }).limit(120);
+        const { data, error } = await sbClient.from("kitchen_orders").select("*").eq("branch_id", currentBranch).in("status", ["sent", "cooking", "done", "cancelled"]).order("created_at", { ascending: false }).limit(120);
         if (error) throw error;
         rows.push(...(data || []).filter(o => !o.branch_id || String(o.branch_id).trim() === String(currentBranch).trim()));
       } catch (err) {
@@ -3211,7 +3951,7 @@
 
       const fallbackRows = await getPendingKitchenRows();
       rows.push(...fallbackRows);
-      rows.push(...(localKitchenOrders || []).filter(o => ["sent", "cooking", "done"].includes(o.status) && (!o.branch_id || String(o.branch_id).trim() === String(currentBranch).trim())));
+      rows.push(...(localKitchenOrders || []).filter(o => ["sent", "cooking", "done", "cancelled"].includes(o.status) && (!o.branch_id || String(o.branch_id).trim() === String(currentBranch).trim())));
 
       const validTableIds = new Set((tablesDataCache || []).map(t => String(t.id)));
       const isLiveTableOrder = o => o?.table_id && validTableIds.has(String(o.table_id));
@@ -3224,13 +3964,15 @@
 
       const uniqueRows = Array.from(new Map(liveRows.map(o => [String(o.id || `${o.table_id}-${o.created_at}`), o])).values());
       uniqueRows.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      const kitchenQtyChanged = mergeSentKitchenQtyFromKitchenRows(uniqueRows, activeTableId);
       renderKitchenOrders(uniqueRows, kitchenError);
+      if (kitchenQtyChanged && activeTableId) { renderCart(); renderDrawerActions(); }
       updateKitchenAlert(uniqueRows.some(o => o.status === "sent"));
     }
 
     async function getPendingKitchenRows() {
       try {
-        const { data, error } = await sbClient.from("pending_orders").select("*").eq("branch_id", currentBranch).in("status", ["sent", "cooking", "done"]);
+        const { data, error } = await sbClient.from("pending_orders").select("*").eq("branch_id", currentBranch).in("status", ["sent", "cooking", "done", "cancelled"]);
         if (error) throw error;
         const groups = {};
         (data || []).filter(r => !r.branch_id || String(r.branch_id).trim() === String(currentBranch).trim()).forEach(r => {
@@ -3311,14 +4053,16 @@
 
       Object.values(groups).forEach(g => {
         const closedCount = g.items.filter(isKitchenItemClosed).length;
-        if (closedCount === g.items.length) g.status = "done";
+        const cancelledCount = g.items.filter(i => i.cancelled || i.status === "cancelled" || i.order_status === "cancelled").length;
+        if (g.items.length && cancelledCount === g.items.length) g.status = "cancelled";
+        else if (closedCount === g.items.length) g.status = "done";
         else if (closedCount > 0 && g.status === "sent") g.status = "cooking";
       });
       kitchenGroupsCache = groups;
       const list = Object.values(groups).sort((a, b) => new Date(b.newest || 0) - new Date(a.newest || 0));
       board.innerHTML = list.map(g => {
         const hasNew = g.status === "sent";
-        const statusLabel = hasNew ? "Có món mới" : g.status === "cooking" ? "Đang làm" : "Đã xong";
+        const statusLabel = hasNew ? "Có món mới" : g.status === "cancelled" ? "Đã hủy" : g.status === "cooking" ? "Đang làm" : "Đã xong";
         const cls = hasNew ? "has-new" : g.status === "cooking" ? "cooking" : "done";
         const modelName = MODEL_NAMES[g.type]?.name || g.type || "Không rõ khu";
         const newest = g.newest ? new Date(g.newest).toLocaleTimeString("vi-VN", { hour:"2-digit", minute:"2-digit" }) : "--:--";
@@ -3332,7 +4076,7 @@
                 <div class="hint">${esc(newest)} • ${esc(statusLabel)}</div>
                 <div class="kitchen-summary"><i class="fas fa-utensils"></i> ${doneCount}/${g.items.length} món xử lý • Bấm để mở chi tiết</div>
               </div>
-              <span class="pill ${hasNew ? "danger" : g.status === "cooking" ? "warn" : "ok"}">${esc(statusLabel)}</span>
+              <span class="pill ${hasNew ? "danger" : g.status === "cancelled" ? "danger" : g.status === "cooking" ? "warn" : "ok"}">${esc(statusLabel)}</span>
             </div>
           </div>`;
       }).join("");
@@ -3356,7 +4100,8 @@
     function refreshKitchenGroupRuntimeStatus(group) {
       if (!group || !Array.isArray(group.items)) return;
       const openCount = group.items.filter(i => !isKitchenItemClosed(i)).length;
-      group.status = openCount > 0 ? "cooking" : "done";
+      const cancelledCount = group.items.filter(i => i.cancelled || i.status === "cancelled" || i.order_status === "cancelled").length;
+      group.status = openCount > 0 ? "cooking" : (group.items.length && cancelledCount === group.items.length ? "cancelled" : "done");
     }
     function openKitchenTableModal(key) {
       const group = kitchenGroupsCache[key];
@@ -3784,13 +4529,15 @@
     }
 
     async function openPaymentModal(tId, type) {
-      if (getPendingKitchenItems(tId).length) {
-        showToast("Còn món chưa gửi bếp. Bấm Gửi bếp trước khi thanh toán.", "warn");
-        return;
-      }
+      await refreshSentKitchenQtyFromKitchenOrders(tId, { render: false });
       const rawCart = localCarts[tId] || [];
       const cancelMap = await getCancelledKitchenQtyMap(tId);
       const cart = applyCancelledKitchenQtyMap(tId, rawCart, cancelMap);
+      if (getPendingKitchenItems(tId, cart).length) {
+        showToast("Còn món chưa gửi bếp. Bấm Gửi bếp trước khi thanh toán.", "warn");
+        renderDrawerActions();
+        return;
+      }
       const base = cart.reduce((sum, i) => sum + (Number(i.price)||0) * (Number(i.qty)||0), 0);
       let start = activeTableStartTime;
       let tf = 0;
@@ -4594,7 +5341,7 @@
       const el = $("users-list");
       if (!el) return;
       try {
-        const { data } = await sbClient.from("users").select("*").eq("branch_id", currentBranch).order("username");
+        const { data } = await sbClient.from("users").select("id,username,role,branch_id").eq("branch_id", currentBranch).order("username");
         el.innerHTML = (data || []).map(u => `
           <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;background:rgba(0,0,0,.18)">
             <div><b>${esc(u.username)}</b><div class="hint">${esc(u.role)}</div></div>
@@ -4610,7 +5357,12 @@
       if (!username || !password) return showToast("Nhập đủ tên đăng nhập và mật khẩu.", "error");
       if (role === "master" && currentUser?.role !== "master") return showToast("Chỉ Master được tạo Master.", "error");
       try {
-        const { error } = await sbClient.from("users").insert([{ username, password, role, branch_id: currentBranch }]);
+        const secureRow = await buildSecureUserRow(username, password, role, currentBranch);
+        let { error } = await sbClient.from("users").insert([secureRow]);
+        if (error && /password_hash|password_salt|password_changed_at|schema cache|column/i.test(`${error.message || ""} ${error.code || ""}`)) {
+          const retry = await sbClient.from("users").insert([{ username, password, role, branch_id: currentBranch }]);
+          error = retry.error;
+        }
         if (error) throw error;
         $("new-u-name").value = "";
         $("new-u-pass").value = "";
